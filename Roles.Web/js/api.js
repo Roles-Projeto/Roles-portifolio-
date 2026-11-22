@@ -66,6 +66,14 @@ export function criarEvento(dados) {
   return pedir("/eventos", enviarJson("POST", dados));
 }
 
+export function atualizarEvento(id, dados) {
+  return pedir(`/eventos/${id}`, enviarJson("PUT", dados));
+}
+
+export function apagarEvento(id) {
+  return pedir(`/eventos/${id}`, { method: "DELETE" });
+}
+
 export function listarIngressos(eventoId) {
   return pedir(`/eventos/${eventoId}/ingressos`);
 }

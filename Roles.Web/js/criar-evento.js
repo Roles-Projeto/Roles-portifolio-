@@ -1,17 +1,25 @@
-import { criarEvento, criarIngresso } from "./api.js";
-import { estaLogada } from "./auth.js";
+import { buscarEvento, criarEvento, atualizarEvento, criarIngresso } from "./api.js";
+import { estaLogada, lerUsuario } from "./auth.js";
 import { escapar, mensagemDoErro } from "./util.js";
 
-// Só quem está logada cria eventos. Se não estiver, vai para o login e volta para cá depois.
+// criar-evento.html        -> criar
+// criar-evento.html?id=3   -> editar o evento 3
+const parametros = new URLSearchParams(window.location.search);
+const editando = parametros.has("id");
+const eventoId = Number(parametros.get("id"));
+
+// Só quem está logada cria ou edita. Se não estiver, vai para o login.
 if (!estaLogada()) {
-  window.location.replace("login.html?voltar=criar-evento.html");
+  window.location.replace(editando ? "login.html" : "login.html?voltar=criar-evento.html");
 }
 
 const form = document.getElementById("form-evento");
+const elTitulo = document.querySelector("h1.titulo");
 const elErros = document.getElementById("erros");
 const elAviso = document.getElementById("aviso");
 const botao = document.getElementById("botao-salvar");
 const elIngressos = document.getElementById("lista-ingressos");
+const blocoIngressos = elIngressos.closest("fieldset");
 const modelo = document.getElementById("modelo-ingresso");
 const botaoAdicionar = document.getElementById("adicionar-ingresso");
 
@@ -24,6 +32,11 @@ function textoOuNulo(valor) {
 // O campo datetime-local entrega "2027-01-15T19:00"; a API espera os segundos.
 function dataParaApi(valor) {
   return valor ? `${valor}:00` : null;
+}
+
+// A API devolve "2027-01-15T19:00:00"; o campo datetime-local quer "2027-01-15T19:00".
+function dataParaCampo(iso) {
+  return iso ? iso.slice(0, 16) : "";
 }
 
 function lerEvento() {
@@ -44,6 +57,30 @@ function lerEvento() {
     estado: textoOuNulo(campos.get("estado")),
     nomeProdutor: textoOuNulo(campos.get("nomeProdutor")),
   };
+}
+
+// Preenche o formulário com os dados do evento (modo edição).
+function preencherFormulario(e) {
+  const valores = {
+    nome: e.nome,
+    assunto: e.assunto,
+    categoria: e.categoria,
+    imagem: e.imagem,
+    dataInicio: dataParaCampo(e.dataInicio),
+    dataFim: dataParaCampo(e.dataFim),
+    descricao: e.descricao,
+    localNome: e.localNome,
+    cep: e.cep,
+    rua: e.rua,
+    cidade: e.cidade,
+    estado: e.estado,
+    nomeProdutor: e.nomeProdutor,
+  };
+
+  for (const [nome, valor] of Object.entries(valores)) {
+    const campo = form.elements[nome];
+    if (campo) campo.value = valor ?? "";
+  }
 }
 
 // Os campos das linhas de ingresso não têm "name", então o FormData acima os ignora.
@@ -86,13 +123,42 @@ function esconderMensagens() {
 }
 
 // Evento criado, mas algum ingresso falhou: explica o que houve e leva ao evento.
-function mostrarAvisoParcial(eventoId, falhas) {
+function mostrarAvisoParcial(eventoIdCriado, falhas) {
   elAviso.innerHTML = `
     <p><strong>O evento foi criado, mas ${falhas.length} ingresso(s) não puderam ser salvos:</strong></p>
     <ul>${falhas.map((f) => `<li>${escapar(f)}</li>`).join("")}</ul>
-    <p><a href="evento.html?id=${Number(eventoId)}">Abrir o evento criado →</a></p>`;
+    <p><a href="evento.html?id=${Number(eventoIdCriado)}">Abrir o evento criado →</a></p>`;
   elAviso.hidden = false;
   elAviso.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+// Modo edição: busca o evento, confere se a pessoa é a dona e preenche o formulário.
+async function iniciarEdicao() {
+  elTitulo.textContent = "Editar evento";
+  botao.textContent = "Salvar alterações";
+  blocoIngressos.hidden = true; // nesta versão a edição não mexe nos ingressos
+  form.hidden = true;
+
+  if (!Number.isInteger(eventoId) || eventoId <= 0) {
+    elTitulo.textContent = "Evento não encontrado.";
+    return;
+  }
+
+  try {
+    const evento = await buscarEvento(eventoId);
+
+    if (evento.usuarioId !== lerUsuario()?.id) {
+      elTitulo.textContent = "Você não pode editar este evento.";
+      return;
+    }
+
+    preencherFormulario(evento);
+    form.hidden = false;
+  } catch (erro) {
+    console.error(erro);
+    elTitulo.textContent =
+      erro.status === 404 ? "Evento não encontrado." : "Não foi possível carregar o evento.";
+  }
 }
 
 // Eventos da seção de ingressos
@@ -121,12 +187,31 @@ form.addEventListener("submit", async (evento) => {
   }
 
   const dados = lerEvento();
-  const ingressos = lerIngressos();
 
   if (dados.dataFim && dados.dataFim < dados.dataInicio) {
     mostrarErros(["A data de término não pode ser anterior à data de início."]);
     return;
   }
+
+  // Modo edição: um único PUT com os dados do evento.
+  if (editando) {
+    botao.disabled = true;
+    botao.textContent = "Salvando...";
+
+    try {
+      await atualizarEvento(eventoId, dados);
+      window.location.href = `evento.html?id=${eventoId}`;
+    } catch (erro) {
+      console.error(erro);
+      mostrarErros(mensagemDoErro(erro));
+      botao.disabled = false;
+      botao.textContent = "Salvar alterações";
+    }
+    return;
+  }
+
+  // Modo criação.
+  const ingressos = lerIngressos();
 
   const semValor = ingressos.find((i) => i.tipo === "pago" && i.valor <= 0);
   if (semValor) {
@@ -170,5 +255,12 @@ form.addEventListener("submit", async (evento) => {
   mostrarAvisoParcial(criado.id, falhas);
 });
 
-// Começa com uma linha de ingresso pronta (dá para remover).
-adicionarLinhaIngresso();
+// Só prepara a tela se a pessoa está logada (senão o redirecionamento acima já foi pedido).
+if (estaLogada()) {
+  if (editando) {
+    iniciarEdicao();
+  } else {
+    // Começa com uma linha de ingresso pronta (dá para remover).
+    adicionarLinhaIngresso();
+  }
+}

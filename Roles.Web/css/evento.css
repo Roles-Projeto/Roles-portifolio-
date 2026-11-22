@@ -122,3 +122,39 @@
   font-weight: 700;
   white-space: nowrap;
 }
+
+
+/* Botões de editar e apagar (só para a dona do evento) */
+.acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.acoes .botao {
+  display: inline-block;
+  padding: 11px 22px;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.botao-claro {
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+
+.botao-claro:hover {
+  color: var(--ink);
+  background: var(--bg);
+  border-color: var(--ink);
+}
+
+.botao-perigo {
+  background: #991b1b;
+}
+
+.botao-perigo:hover {
+  background: #7f1d1d;
+}
