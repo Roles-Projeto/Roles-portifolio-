@@ -1,7 +1,9 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Roles.Api.Data;
 using Roles.Api.Models;
+using Roles.Api.Services;
 
 namespace Roles.Api.Controllers;
 
@@ -9,18 +11,23 @@ namespace Roles.Api.Controllers;
 [Route("api/auth")]
 public class AuthController : ControllerBase
 {
-    private readonly AppDbContext _db;
+    // Hash de uma senha que ninguém usa. Serve para gastar o mesmo tempo
+    // quando o e-mail não existe, e assim não revelar quais e-mails têm conta.
+    private static readonly string HashFalso = BCrypt.Net.BCrypt.HashPassword("senha-que-ninguem-usa");
 
-    public AuthController(AppDbContext db)
+    private readonly AppDbContext _db;
+    private readonly TokenService _tokens;
+
+    public AuthController(AppDbContext db, TokenService tokens)
     {
         _db = db;
+        _tokens = tokens;
     }
 
     // POST api/auth/registro
     [HttpPost("registro")]
     public async Task<IActionResult> Registrar(RegistroDto dto)
     {
-        // E-mail sempre em minúsculas e sem espaços, para "Ana@x.com" e "ana@x.com" serem o mesmo.
         var email = dto.Email.Trim().ToLowerInvariant();
 
         if (await _db.Usuarios.AnyAsync(u => u.Email.ToLower() == email))
@@ -30,7 +37,6 @@ public class AuthController : ControllerBase
         {
             Nome = dto.Nome.Trim(),
             Email = email,
-            // O hash é gerado aqui; a senha original nunca é gravada.
             SenhaHash = BCrypt.Net.BCrypt.HashPassword(dto.Senha),
             CriadoEm = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified)
         };
@@ -43,11 +49,49 @@ public class AuthController : ControllerBase
         }
         catch (DbUpdateException)
         {
-            // Duas pessoas cadastrando o mesmo e-mail ao mesmo tempo: o índice único do banco barra.
             return Conflict(new { mensagem = "Já existe uma conta com esse e-mail." });
         }
 
-        // Devolve só dados públicos. O SenhaHash nunca sai da API.
         return Created(string.Empty, new { usuario.Id, usuario.Nome, usuario.Email });
+    }
+
+    // POST api/auth/login
+    [HttpPost("login")]
+    public async Task<IActionResult> Login(LoginDto dto)
+    {
+        var email = dto.Email.Trim().ToLowerInvariant();
+
+        var usuario = await _db.Usuarios
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.Email.ToLower() == email);
+
+        // Confere a senha mesmo sem usuário (contra o hash falso), para o tempo de resposta ser parecido.
+        var senhaCorreta = BCrypt.Net.BCrypt.Verify(dto.Senha, usuario?.SenhaHash ?? HashFalso);
+
+        // A mesma mensagem para "e-mail errado" e "senha errada" evita revelar quais e-mails existem.
+        if (usuario is null || !senhaCorreta)
+            return Unauthorized(new { mensagem = "E-mail ou senha incorretos." });
+
+        var (token, expiraEm) = _tokens.Gerar(usuario);
+
+        return Ok(new
+        {
+            token,
+            expiraEm,
+            usuario = new { usuario.Id, usuario.Nome, usuario.Email }
+        });
+    }
+
+    // GET api/auth/eu  (rota protegida: serve para provar que o token funciona)
+    [Authorize]
+    [HttpGet("eu")]
+    public IActionResult Eu()
+    {
+        return Ok(new
+        {
+            id = User.FindFirst("sub")?.Value,
+            nome = User.FindFirst("name")?.Value,
+            email = User.FindFirst("email")?.Value
+        });
     }
 }
