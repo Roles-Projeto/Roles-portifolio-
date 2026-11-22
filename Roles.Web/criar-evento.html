@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Criar evento · Rolês</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/formulario.css">
+</head>
+<body>
+  <header class="topo">
+    <a class="logo" href="index.html">Rolês<span class="ponto">.</span></a>
+    <a class="nav-link" href="criar-evento.html">Criar evento</a>
+  </header>
+
+  <main class="conteudo estreito">
+    <a class="voltar" href="index.html">← Voltar para os eventos</a>
+    <h1 class="titulo">Criar evento</h1>
+
+    <form id="form-evento" novalidate>
+      <fieldset>
+        <legend>Informações básicas</legend>
+
+        <label class="campo-form">
+          <span>Nome do evento *</span>
+          <input type="text" name="nome" required minlength="3" maxlength="200">
+        </label>
+
+        <div class="linha">
+          <label class="campo-form">
+            <span>Categoria</span>
+            <input type="text" name="categoria" list="categorias" maxlength="100" placeholder="Ex.: Shows">
+            <datalist id="categorias">
+              <option value="Shows">
+              <option value="Festivais">
+              <option value="Teatro">
+              <option value="Gastronomia">
+              <option value="Esportes">
+            </datalist>
+          </label>
+
+          <label class="campo-form">
+            <span>Assunto</span>
+            <input type="text" name="assunto" maxlength="200" placeholder="Ex.: Música">
+          </label>
+        </div>
+
+        <label class="campo-form">
+          <span>Descrição</span>
+          <textarea name="descricao" rows="5"></textarea>
+        </label>
+
+        <label class="campo-form">
+          <span>Link da imagem de capa</span>
+          <input type="url" name="imagem" maxlength="500" placeholder="https://...">
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Data e horário</legend>
+
+        <div class="linha">
+          <label class="campo-form">
+            <span>Início *</span>
+            <input type="datetime-local" name="dataInicio" required>
+          </label>
+
+          <label class="campo-form">
+            <span>Término</span>
+            <input type="datetime-local" name="dataFim">
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Local</legend>
+
+        <label class="campo-form">
+          <span>Nome do local</span>
+          <input type="text" name="localNome" maxlength="200" placeholder="Ex.: Teatro Municipal">
+        </label>
+
+        <div class="linha">
+          <label class="campo-form">
+            <span>CEP</span>
+            <input type="text" name="cep" maxlength="9" placeholder="00000-000">
+          </label>
+
+          <label class="campo-form">
+            <span>Rua</span>
+            <input type="text" name="rua" maxlength="200">
+          </label>
+        </div>
+
+        <div class="linha">
+          <label class="campo-form">
+            <span>Cidade</span>
+            <input type="text" name="cidade" maxlength="100">
+          </label>
+
+          <label class="campo-form curto">
+            <span>UF</span>
+            <input type="text" name="estado" maxlength="2" pattern="[A-Za-z]{2}" placeholder="GO">
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Organização</legend>
+
+        <label class="campo-form">
+          <span>Nome do produtor</span>
+          <input type="text" name="nomeProdutor" maxlength="200">
+        </label>
+      </fieldset>
+
+      <div id="erros" class="erros" role="alert" hidden></div>
+
+      <button id="botao-salvar" class="botao" type="submit">Publicar evento</button>
+    </form>
+  </main>
+
+  <script type="module" src="js/criar-evento.js"></script>
+</body>
+</html>
