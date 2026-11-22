@@ -8,6 +8,7 @@ public class AppDbContext : DbContext
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
     public DbSet<Evento> Eventos => Set<Evento>();
+    public DbSet<Ingresso> Ingressos => Set<Ingresso>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -30,6 +31,24 @@ public class AppDbContext : DbContext
             e.Property(x => x.Estado).HasColumnName("estado");
             e.Property(x => x.NomeProdutor).HasColumnName("nome_produtor");
             e.Property(x => x.CriadoEm).HasColumnName("criado_em").HasColumnType("timestamp without time zone");
+        });
+
+        modelBuilder.Entity<Ingresso>(i =>
+        {
+            i.ToTable("ingressos");
+            i.HasKey(x => x.Id);
+            i.Property(x => x.Id).HasColumnName("id");
+            i.Property(x => x.EventoId).HasColumnName("evento_id");
+            i.Property(x => x.Titulo).HasColumnName("titulo");
+            i.Property(x => x.Tipo).HasColumnName("tipo");
+            i.Property(x => x.Valor).HasColumnName("valor").HasColumnType("numeric(10,2)");
+            i.Property(x => x.QuantidadeTotal).HasColumnName("quantidade_total");
+
+            // Um evento tem vários ingressos; apagar o evento apaga os ingressos (igual ao banco).
+            i.HasOne<Evento>()
+                .WithMany()
+                .HasForeignKey(x => x.EventoId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }
