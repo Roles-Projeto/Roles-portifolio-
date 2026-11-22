@@ -204,3 +204,35 @@ a {
   opacity: 0.6;
   cursor: wait;
 }
+
+
+/* Menu do topo (muda conforme a sessão) */
+.menu {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ola {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+button.nav-link {
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--ink);
+  background: var(--bg);
+  cursor: pointer;
+}
+
+.nav-link.destaque {
+  color: #fff;
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.nav-link.destaque:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+}

@@ -201,3 +201,25 @@ legend {
     width: 100%;
   }
 }
+
+
+/* Telas de login e cadastro */
+.form-auth {
+  max-width: 420px;
+}
+
+.form-auth .botao {
+  width: 100%;
+}
+
+.alternativa {
+  margin-top: 20px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.alternativa a {
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: underline;
+}

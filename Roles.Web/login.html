@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Entrar · Rolês</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/formulario.css">
+</head>
+<body>
+  <header class="topo">
+    <a class="logo" href="index.html">Rolês<span class="ponto">.</span></a>
+    <nav id="menu" class="menu"></nav>
+  </header>
+
+  <main class="conteudo estreito">
+    <h1 class="titulo">Entrar</h1>
+
+    <form id="form-login" class="form-auth" novalidate>
+      <label class="campo-form">
+        <span>E-mail</span>
+        <input type="email" name="email" required autocomplete="email">
+      </label>
+
+      <label class="campo-form">
+        <span>Senha</span>
+        <input type="password" name="senha" required autocomplete="current-password">
+      </label>
+
+      <div id="erros" class="erros" role="alert" hidden></div>
+
+      <button id="botao-entrar" class="botao" type="submit">Entrar</button>
+
+      <p class="alternativa">Ainda não tem conta? <a href="cadastro.html">Criar conta</a></p>
+    </form>
+  </main>
+
+  <script type="module" src="js/menu.js"></script>
+  <script type="module" src="js/login.js"></script>
+</body>
+</html>

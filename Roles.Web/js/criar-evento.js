@@ -1,5 +1,11 @@
 import { criarEvento, criarIngresso } from "./api.js";
-import { escapar } from "./util.js";
+import { estaLogada } from "./auth.js";
+import { escapar, mensagemDoErro } from "./util.js";
+
+// Só quem está logada cria eventos. Se não estiver, vai para o login e volta para cá depois.
+if (!estaLogada()) {
+  window.location.replace("login.html?voltar=criar-evento.html");
+}
 
 const form = document.getElementById("form-evento");
 const elErros = document.getElementById("erros");
@@ -87,12 +93,6 @@ function mostrarAvisoParcial(eventoId, falhas) {
     <p><a href="evento.html?id=${Number(eventoId)}">Abrir o evento criado →</a></p>`;
   elAviso.hidden = false;
   elAviso.scrollIntoView({ behavior: "smooth", block: "center" });
-}
-
-function mensagemDoErro(erro) {
-  if (erro.detalhes && erro.detalhes.length > 0) return erro.detalhes;
-  if (erro.status) return [`A API recusou o pedido (erro ${erro.status}).`];
-  return ["Não foi possível falar com a API. Ela está rodando?"];
 }
 
 // Eventos da seção de ingressos

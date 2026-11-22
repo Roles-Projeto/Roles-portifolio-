@@ -1,3 +1,5 @@
+import { lerToken, limparSessao } from "./auth.js";
+
 // Único arquivo que conhece o endereço da API.
 const API_URL = "http://localhost:5038/api";
 
@@ -14,13 +16,25 @@ async function lerMensagensDeErro(resposta) {
   return [];
 }
 
-async function pedir(caminho, opcoes) {
-  const resposta = await fetch(`${API_URL}${caminho}`, opcoes);
+async function pedir(caminho, opcoes = {}) {
+  // Se há sessão, o token vai em todo pedido.
+  const token = lerToken();
+  const headers = { ...(opcoes.headers ?? {}) };
+  if (token) headers.Authorization = `Bearer ${token}`;
+
+  const resposta = await fetch(`${API_URL}${caminho}`, { ...opcoes, headers });
 
   if (!resposta.ok) {
     const erro = new Error(`A API respondeu com erro ${resposta.status}`);
     erro.status = resposta.status;
     erro.detalhes = await lerMensagensDeErro(resposta);
+
+    // Mandamos um token e a API disse 401: ele venceu ou é inválido.
+    if (resposta.status === 401 && token) {
+      limparSessao();
+      erro.sessaoExpirada = true;
+    }
+
     throw erro;
   }
 
@@ -58,4 +72,12 @@ export function listarIngressos(eventoId) {
 
 export function criarIngresso(eventoId, dados) {
   return pedir(`/eventos/${eventoId}/ingressos`, enviarJson("POST", dados));
+}
+
+export function registrar(dados) {
+  return pedir("/auth/registro", enviarJson("POST", dados));
+}
+
+export function login(dados) {
+  return pedir("/auth/login", enviarJson("POST", dados));
 }

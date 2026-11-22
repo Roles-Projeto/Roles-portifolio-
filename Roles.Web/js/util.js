@@ -40,3 +40,11 @@ export function formatarMoeda(valor) {
     currency: "BRL",
   }).format(valor);
 }
+
+// Transforma um erro da API em uma lista de mensagens para mostrar na tela.
+export function mensagemDoErro(erro) {
+  if (erro.sessaoExpirada) return ["Sua sessão expirou. Entre novamente."];
+  if (erro.detalhes && erro.detalhes.length > 0) return erro.detalhes;
+  if (erro.status) return [`A API recusou o pedido (erro ${erro.status}).`];
+  return ["Não foi possível falar com a API. Ela está rodando?"];
+}
