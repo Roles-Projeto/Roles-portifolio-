@@ -9,6 +9,7 @@ public class AppDbContext : DbContext
 
     public DbSet<Evento> Eventos => Set<Evento>();
     public DbSet<Ingresso> Ingressos => Set<Ingresso>();
+    public DbSet<Usuario> Usuarios => Set<Usuario>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -49,6 +50,17 @@ public class AppDbContext : DbContext
                 .WithMany()
                 .HasForeignKey(x => x.EventoId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Usuario>(u =>
+        {
+            u.ToTable("usuarios");
+            u.HasKey(x => x.Id);
+            u.Property(x => x.Id).HasColumnName("id");
+            u.Property(x => x.Nome).HasColumnName("nome");
+            u.Property(x => x.Email).HasColumnName("email");
+            u.Property(x => x.SenhaHash).HasColumnName("senha_hash");
+            u.Property(x => x.CriadoEm).HasColumnName("criado_em").HasColumnType("timestamp without time zone");
         });
     }
 }
