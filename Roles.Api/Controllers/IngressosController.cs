@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Roles.Api.Data;
@@ -14,6 +15,12 @@ public class IngressosController : ControllerBase
     public IngressosController(AppDbContext db)
     {
         _db = db;
+    }
+
+    private int? UsuarioLogadoId()
+    {
+        var valor = User.FindFirst("sub")?.Value;
+        return int.TryParse(valor, out var id) ? id : null;
     }
 
     // GET api/eventos/1/ingressos
@@ -33,18 +40,27 @@ public class IngressosController : ControllerBase
         return Ok(ingressos);
     }
 
-    // POST api/eventos/1/ingressos
+    // POST api/eventos/1/ingressos  (só a dona do evento)
+    [Authorize]
     [HttpPost]
     public async Task<ActionResult<Ingresso>> Create(int eventoId, IngressoCreateDto dto)
     {
+        var evento = await _db.Eventos
+            .AsNoTracking()
+            .FirstOrDefaultAsync(e => e.Id == eventoId);
+
+        if (evento is null)
+            return NotFound(new { mensagem = $"Evento {eventoId} não encontrado." });
+
+        if (evento.UsuarioId != UsuarioLogadoId())
+            return StatusCode(StatusCodes.Status403Forbidden,
+                new { mensagem = "Só quem criou o evento pode cadastrar ingressos nele." });
+
         if (dto.Tipo == "gratuito" && dto.Valor != 0)
             return BadRequest(new { mensagem = "Ingresso gratuito deve ter valor 0." });
 
         if (dto.Tipo == "pago" && dto.Valor <= 0)
             return BadRequest(new { mensagem = "Ingresso pago precisa ter valor maior que 0." });
-
-        if (!await _db.Eventos.AnyAsync(e => e.Id == eventoId))
-            return NotFound(new { mensagem = $"Evento {eventoId} não encontrado." });
 
         var ingresso = new Ingresso
         {

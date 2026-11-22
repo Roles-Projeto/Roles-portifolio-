@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Roles.Api.Data;
@@ -14,6 +15,13 @@ public class EventosController : ControllerBase
     public EventosController(AppDbContext db)
     {
         _db = db;
+    }
+
+    // Lê o id do usuário que está dentro do token ("sub").
+    private int? UsuarioLogadoId()
+    {
+        var valor = User.FindFirst("sub")?.Value;
+        return int.TryParse(valor, out var id) ? id : null;
     }
 
     // GET api/eventos?cidade=Goiânia&categoria=Shows
@@ -51,10 +59,15 @@ public class EventosController : ControllerBase
         return Ok(evento);
     }
 
-    // POST api/eventos
+    // POST api/eventos  (precisa estar logada)
+    [Authorize]
     [HttpPost]
     public async Task<ActionResult<Evento>> Create(EventoCreateDto dto)
     {
+        var usuarioId = UsuarioLogadoId();
+        if (usuarioId is null)
+            return Unauthorized(new { mensagem = "Faça login para criar eventos." });
+
         if (dto.DataFim.HasValue && dto.DataFim.Value < dto.DataInicio)
             return BadRequest(new { mensagem = "A data de fim não pode ser anterior à data de início." });
 
@@ -73,7 +86,8 @@ public class EventosController : ControllerBase
             Cidade = dto.Cidade,
             Estado = dto.Estado?.ToUpperInvariant(),
             NomeProdutor = dto.NomeProdutor,
-            CriadoEm = SemFuso(DateTime.UtcNow)
+            CriadoEm = SemFuso(DateTime.UtcNow),
+            UsuarioId = usuarioId
         };
 
         _db.Eventos.Add(evento);
@@ -82,17 +96,22 @@ public class EventosController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = evento.Id }, evento);
     }
 
-    // PUT api/eventos/1
+    // PUT api/eventos/1  (só a dona do evento)
+    [Authorize]
     [HttpPut("{id:int}")]
     public async Task<ActionResult<Evento>> Update(int id, EventoCreateDto dto)
     {
-        if (dto.DataFim.HasValue && dto.DataFim.Value < dto.DataInicio)
-            return BadRequest(new { mensagem = "A data de fim não pode ser anterior à data de início." });
-
         var evento = await _db.Eventos.FirstOrDefaultAsync(e => e.Id == id);
 
         if (evento is null)
             return NotFound(new { mensagem = $"Evento {id} não encontrado." });
+
+        if (evento.UsuarioId != UsuarioLogadoId())
+            return StatusCode(StatusCodes.Status403Forbidden,
+                new { mensagem = "Só quem criou o evento pode alterá-lo." });
+
+        if (dto.DataFim.HasValue && dto.DataFim.Value < dto.DataInicio)
+            return BadRequest(new { mensagem = "A data de fim não pode ser anterior à data de início." });
 
         evento.Nome = dto.Nome.Trim();
         evento.Assunto = dto.Assunto;
@@ -113,7 +132,8 @@ public class EventosController : ControllerBase
         return Ok(evento);
     }
 
-    // DELETE api/eventos/1
+    // DELETE api/eventos/1  (só a dona do evento)
+    [Authorize]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
@@ -121,6 +141,10 @@ public class EventosController : ControllerBase
 
         if (evento is null)
             return NotFound(new { mensagem = $"Evento {id} não encontrado." });
+
+        if (evento.UsuarioId != UsuarioLogadoId())
+            return StatusCode(StatusCodes.Status403Forbidden,
+                new { mensagem = "Só quem criou o evento pode apagá-lo." });
 
         _db.Eventos.Remove(evento);
         await _db.SaveChangesAsync();

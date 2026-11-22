@@ -32,6 +32,13 @@ public class AppDbContext : DbContext
             e.Property(x => x.Estado).HasColumnName("estado");
             e.Property(x => x.NomeProdutor).HasColumnName("nome_produtor");
             e.Property(x => x.CriadoEm).HasColumnName("criado_em").HasColumnType("timestamp without time zone");
+            e.Property(x => x.UsuarioId).HasColumnName("usuario_id");
+
+            // Um usuário tem vários eventos; apagar o usuário mantém os eventos (sem dono).
+            e.HasOne<Usuario>()
+                .WithMany()
+                .HasForeignKey(x => x.UsuarioId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
         modelBuilder.Entity<Ingresso>(i =>

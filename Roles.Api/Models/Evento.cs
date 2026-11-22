@@ -17,4 +17,7 @@ public class Evento
     public string? Estado { get; set; }
     public string? NomeProdutor { get; set; }
     public DateTime CriadoEm { get; set; } = DateTime.UtcNow;
+
+    // Dono do evento (quem criou). Vem do token, nunca do corpo do pedido.
+    public int? UsuarioId { get; set; }
 }
