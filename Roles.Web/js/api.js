@@ -27,6 +27,14 @@ async function pedir(caminho, opcoes) {
   return resposta.status === 204 ? null : resposta.json();
 }
 
+function enviarJson(metodo, dados) {
+  return {
+    method: metodo,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(dados),
+  };
+}
+
 export function listarEventos({ cidade = "", categoria = "" } = {}) {
   const params = new URLSearchParams();
   if (cidade) params.set("cidade", cidade);
@@ -41,13 +49,13 @@ export function buscarEvento(id) {
 }
 
 export function criarEvento(dados) {
-  return pedir("/eventos", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(dados),
-  });
+  return pedir("/eventos", enviarJson("POST", dados));
 }
 
 export function listarIngressos(eventoId) {
   return pedir(`/eventos/${eventoId}/ingressos`);
+}
+
+export function criarIngresso(eventoId, dados) {
+  return pedir(`/eventos/${eventoId}/ingressos`, enviarJson("POST", dados));
 }
