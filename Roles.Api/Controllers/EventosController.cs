@@ -50,4 +50,39 @@ public class EventosController : ControllerBase
 
         return Ok(evento);
     }
+
+    // POST api/eventos
+    [HttpPost]
+    public async Task<ActionResult<Evento>> Create(EventoCreateDto dto)
+    {
+        if (dto.DataFim.HasValue && dto.DataFim.Value < dto.DataInicio)
+            return BadRequest(new { mensagem = "A data de fim não pode ser anterior à data de início." });
+
+        var evento = new Evento
+        {
+            Nome = dto.Nome.Trim(),
+            Assunto = dto.Assunto,
+            Categoria = dto.Categoria,
+            Imagem = dto.Imagem,
+            DataInicio = SemFuso(dto.DataInicio),
+            DataFim = dto.DataFim.HasValue ? SemFuso(dto.DataFim.Value) : null,
+            Descricao = dto.Descricao,
+            LocalNome = dto.LocalNome,
+            Cep = dto.Cep,
+            Rua = dto.Rua,
+            Cidade = dto.Cidade,
+            Estado = dto.Estado?.ToUpperInvariant(),
+            NomeProdutor = dto.NomeProdutor,
+            CriadoEm = SemFuso(DateTime.UtcNow)
+        };
+
+        _db.Eventos.Add(evento);
+        await _db.SaveChangesAsync();
+
+        return CreatedAtAction(nameof(GetById), new { id = evento.Id }, evento);
+    }
+
+    // A coluna é "timestamp without time zone"; o Npgsql recusa DateTime com Kind=Utc nela.
+    private static DateTime SemFuso(DateTime data) =>
+        DateTime.SpecifyKind(data, DateTimeKind.Unspecified);
 }
