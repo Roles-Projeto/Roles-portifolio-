@@ -82,6 +82,52 @@ public class EventosController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = evento.Id }, evento);
     }
 
+    // PUT api/eventos/1
+    [HttpPut("{id:int}")]
+    public async Task<ActionResult<Evento>> Update(int id, EventoCreateDto dto)
+    {
+        if (dto.DataFim.HasValue && dto.DataFim.Value < dto.DataInicio)
+            return BadRequest(new { mensagem = "A data de fim não pode ser anterior à data de início." });
+
+        var evento = await _db.Eventos.FirstOrDefaultAsync(e => e.Id == id);
+
+        if (evento is null)
+            return NotFound(new { mensagem = $"Evento {id} não encontrado." });
+
+        evento.Nome = dto.Nome.Trim();
+        evento.Assunto = dto.Assunto;
+        evento.Categoria = dto.Categoria;
+        evento.Imagem = dto.Imagem;
+        evento.DataInicio = SemFuso(dto.DataInicio);
+        evento.DataFim = dto.DataFim.HasValue ? SemFuso(dto.DataFim.Value) : null;
+        evento.Descricao = dto.Descricao;
+        evento.LocalNome = dto.LocalNome;
+        evento.Cep = dto.Cep;
+        evento.Rua = dto.Rua;
+        evento.Cidade = dto.Cidade;
+        evento.Estado = dto.Estado?.ToUpperInvariant();
+        evento.NomeProdutor = dto.NomeProdutor;
+
+        await _db.SaveChangesAsync();
+
+        return Ok(evento);
+    }
+
+    // DELETE api/eventos/1
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var evento = await _db.Eventos.FirstOrDefaultAsync(e => e.Id == id);
+
+        if (evento is null)
+            return NotFound(new { mensagem = $"Evento {id} não encontrado." });
+
+        _db.Eventos.Remove(evento);
+        await _db.SaveChangesAsync();
+
+        return NoContent();
+    }
+
     // A coluna é "timestamp without time zone"; o Npgsql recusa DateTime com Kind=Utc nela.
     private static DateTime SemFuso(DateTime data) =>
         DateTime.SpecifyKind(data, DateTimeKind.Unspecified);
