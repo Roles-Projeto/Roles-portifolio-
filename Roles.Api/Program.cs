@@ -12,23 +12,36 @@ var connectionString = builder.Configuration.GetConnectionString("Default")
     ?? throw new InvalidOperationException("Connection string 'Default' não configurada.");
 
 var jwtKey = builder.Configuration["Jwt:Key"]
-    ?? throw new InvalidOperationException("Chave 'Jwt:Key' não configurada (use dotnet user-secrets).");
+    ?? throw new InvalidOperationException("Chave 'Jwt:Key' não configurada.");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// CORS: quais sites (origens) podem chamar esta API pelo navegador.
-// Em desenvolvimento, aceita qualquer porta de localhost / 127.0.0.1.
+// Em produção, só os sites listados em "Cors:Origens" (separados por vírgula) podem chamar a API.
+// Exemplo: https://meu-site.netlify.app  (sem barra no final)
+var origensProducao = (builder.Configuration["Cors:Origens"] ?? "")
+    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Front", policy =>
-        policy.SetIsOriginAllowed(origem =>
-              {
-                  var host = new Uri(origem).Host;
-                  return host == "localhost" || host == "127.0.0.1";
-              })
-              .AllowAnyHeader()
-              .AllowAnyMethod());
+    {
+        if (builder.Environment.IsDevelopment())
+        {
+            // No seu computador: qualquer porta de localhost / 127.0.0.1.
+            policy.SetIsOriginAllowed(origem =>
+            {
+                var host = new Uri(origem).Host;
+                return host == "localhost" || host == "127.0.0.1";
+            });
+        }
+        else
+        {
+            policy.WithOrigins(origensProducao);
+        }
+
+        policy.AllowAnyHeader().AllowAnyMethod();
+    });
 });
 
 // Autenticação: a API passa a entender o "Authorization: Bearer <token>".
@@ -36,8 +49,7 @@ builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        // Mantém os nomes originais dos campos do token ("sub", "email", "name"),
-        // em vez de renomear para os nomes longos do .NET.
+        // Mantém os nomes originais dos campos do token ("sub", "email", "name").
         options.MapInboundClaims = false;
 
         options.TokenValidationParameters = new TokenValidationParameters
@@ -61,13 +73,12 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
+// A tela de testes (Scalar) só existe no seu computador, nunca na internet.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.MapScalarApiReference();
 }
-
-app.UseHttpsRedirection();
 
 app.UseCors("Front");
 
@@ -76,5 +87,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Endereço para a hospedagem checar se a API está viva.
+app.MapGet("/api/health", () => Results.Ok(new { status = "ok" }));
 
 app.Run();
