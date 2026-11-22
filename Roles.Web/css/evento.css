@@ -87,3 +87,38 @@
     gap: 24px;
   }
 }
+
+
+/* Lista de ingressos */
+.ingressos {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.ingresso {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.ingresso div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ingresso .suave {
+  font-size: 0.8rem;
+}
+
+.preco {
+  font-size: 1.05rem;
+  font-weight: 700;
+  white-space: nowrap;
+}

@@ -47,3 +47,7 @@ export function criarEvento(dados) {
     body: JSON.stringify(dados),
   });
 }
+
+export function listarIngressos(eventoId) {
+  return pedir(`/eventos/${eventoId}/ingressos`);
+}

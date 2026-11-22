@@ -32,3 +32,11 @@ export function formatarDataCompleta(iso) {
   const hora = data.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
   return `${dia} às ${hora}`;
 }
+
+// Ex.: 80 -> "R$ 80,00"
+export function formatarMoeda(valor) {
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(valor);
+}

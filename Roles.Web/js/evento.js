@@ -1,11 +1,33 @@
-import { buscarEvento } from "./api.js";
-import { escapar, formatarDataCompleta } from "./util.js";
+import { buscarEvento, listarIngressos } from "./api.js";
+import { escapar, formatarDataCompleta, formatarMoeda } from "./util.js";
 
 const elStatus = document.getElementById("status");
 const elEvento = document.getElementById("evento");
 
 // Lê o ?id=3 do endereço da página.
 const id = Number(new URLSearchParams(window.location.search).get("id"));
+
+function htmlIngressos(ingressos) {
+  if (ingressos.length === 0) {
+    return `<p class="suave">Os ingressos ainda não foram cadastrados.</p>`;
+  }
+
+  const itens = ingressos
+    .map((i) => {
+      const preco = i.tipo === "gratuito" ? "Gratuito" : formatarMoeda(i.valor);
+      return `
+        <li class="ingresso">
+          <div>
+            <strong>${escapar(i.titulo)}</strong>
+            <span class="suave">${escapar(i.quantidadeTotal)} ingressos</span>
+          </div>
+          <span class="preco">${escapar(preco)}</span>
+        </li>`;
+    })
+    .join("");
+
+  return `<ul class="ingressos">${itens}</ul>`;
+}
 
 function renderizar(e) {
   document.title = `${e.nome} · Rolês`;
@@ -33,6 +55,11 @@ function renderizar(e) {
         ${fim}
 
         <div class="bloco">
+          <h2>Ingressos</h2>
+          <div id="ingressos"><p class="suave">Carregando ingressos...</p></div>
+        </div>
+
+        <div class="bloco">
           <h2>Local</h2>
           <p><strong>${escapar(e.localNome ?? "A definir")}</strong></p>
           <p class="suave">${escapar(endereco)}</p>
@@ -48,6 +75,19 @@ function renderizar(e) {
     </div>`;
 }
 
+// Os ingressos vêm em uma segunda chamada: se falharem, o evento continua na tela.
+async function carregarIngressos() {
+  const elIngressos = document.getElementById("ingressos");
+
+  try {
+    const ingressos = await listarIngressos(id);
+    elIngressos.innerHTML = htmlIngressos(ingressos);
+  } catch (erro) {
+    elIngressos.innerHTML = `<p class="suave">Não foi possível carregar os ingressos.</p>`;
+    console.error(erro);
+  }
+}
+
 async function iniciar() {
   if (!Number.isInteger(id) || id <= 0) {
     elStatus.textContent = "Evento não encontrado.";
@@ -58,6 +98,7 @@ async function iniciar() {
     const evento = await buscarEvento(id);
     elStatus.hidden = true;
     renderizar(evento);
+    carregarIngressos();
   } catch (erro) {
     elStatus.textContent =
       erro.status === 404
