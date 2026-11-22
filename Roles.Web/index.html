@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rolês</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topo">
+    <a class="logo" href="index.html">Rolês<span class="ponto">.</span></a>
+  </header>
+
+  <main class="conteudo">
+    <h2 class="titulo">Descubra o que fazer</h2>
+
+    <section class="filtros">
+      <label class="campo">
+        <span>Cidade</span>
+        <select id="filtro-cidade">
+          <option value="">Todas as cidades</option>
+        </select>
+      </label>
+
+      <div id="filtro-categorias" class="chips">
+        <button type="button" class="chip ativo" data-categoria="">Todos</button>
+      </div>
+    </section>
+
+    <p id="status" class="status">Carregando eventos...</p>
+    <ul id="lista" class="grade"></ul>
+  </main>
+
+  <script type="module" src="js/eventos.js"></script>
+</body>
+</html>

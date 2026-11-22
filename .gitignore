@@ -485,3 +485,5 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+# Arquivos de senha (nunca versionar)
+senha*.txt

@@ -1,0 +1,167 @@
+:root {
+  --ink: #1c1b22;
+  --muted: #6b6975;
+  --accent: #6d28d9;
+  --border: #e6e4ec;
+  --bg: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.topo {
+  padding: 20px 32px;
+  border-bottom: 1px solid var(--border);
+}
+
+.logo {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.ponto {
+  color: var(--accent);
+}
+
+.conteudo {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 32px 80px;
+}
+
+.titulo {
+  margin: 0 0 24px;
+  font-size: clamp(2rem, 4vw, 3rem);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+/* Filtros */
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 16px 24px;
+  margin-bottom: 24px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.campo select {
+  min-width: 220px;
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  padding: 9px 16px;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.chip:hover {
+  border-color: var(--ink);
+}
+
+.chip.ativo {
+  color: #fff;
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.status {
+  margin: 0 0 20px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+/* Cards */
+.grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 32px 24px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.capa {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 4 / 3;
+  margin-bottom: 12px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1c1b22, #4c1d95);
+  border-radius: 16px;
+}
+
+.capa img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.capa-inicial {
+  font-size: 3rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.card:hover .capa {
+  opacity: 0.92;
+}
+
+.meta {
+  margin: 0 0 4px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.card h3 {
+  margin: 0 0 4px;
+  font-size: 1.1rem;
+  letter-spacing: -0.01em;
+}
+
+.local {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
