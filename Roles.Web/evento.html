@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Todos os shows, festivais, peças e eventos de Goiânia e região.">
-  <title>Todos os eventos · Rolês</title>
+  <title>Evento · Rolês</title>
   <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="css/lugar.css">
+  <link rel="stylesheet" href="css/evento.css">
 </head>
 <body>
   <header class="topo">
@@ -15,48 +15,18 @@
   </header>
 
   <main>
-    <section class="hero hero-curto">
-      <div class="hero-inner">
-        <div class="hero-texto">
-          <h1>Todos os eventos</h1>
-          <p class="hero-sub">Filtre por categoria e cidade, ou busque pelo nome do evento ou do local.</p>
-
-          <div class="busca-hero" role="search">
-            <label class="so-leitor" for="busca">Buscar eventos</label>
-            <input id="busca" type="search" placeholder="Busque por evento ou local" autocomplete="off">
-            <a class="botao" href="#eventos">Buscar</a>
-          </div>
-        </div>
+    <section class="lu-hero">
+      <div class="lu-hero-inner">
+        <a class="voltar" href="index.html">← Voltar para os eventos</a>
+        <p id="status" class="status">Carregando evento...</p>
+        <div id="topo"></div>
       </div>
     </section>
 
-    <section class="secao" id="eventos">
-      <div class="secao-topo">
-        <h2>Eventos</h2>
-        <p id="status" class="status" aria-live="polite">Carregando eventos...</p>
-      </div>
-
-      <div class="filtros" aria-label="Filtros">
-        <div class="cidade" id="cidade">
-          <button type="button" class="cidade-botao" id="cidade-botao" aria-haspopup="listbox" aria-expanded="false">
-            <span id="cidade-texto">Todas as cidades</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
-          </button>
-          <ul class="cidade-lista" id="cidade-lista" role="listbox" hidden></ul>
-        </div>
-
-        <div id="filtro-categorias" class="chips">
-          <button type="button" class="chip ativo" data-categoria="">Todos</button>
-        </div>
-      </div>
-
-      <div id="acoes" class="acoes-status"></div>
-      <ul id="lista" class="ev-grade"></ul>
-    </section>
+    <section class="lu-corpo" id="corpo"></section>
   </main>
 
   <script type="module" src="js/menu.js"></script>
-  <script type="module" src="js/eventos.js"></script>
-  <script type="module" src="js/perfil.js"></script>
+  <script type="module" src="js/evento.js"></script>
 </body>
 </html>
