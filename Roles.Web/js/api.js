@@ -74,4 +74,25 @@ export function criarEvento(dados) {
 }
 
 export function atualizarEvento(id, dados) {
-  return pedir(`/eventos/${id}`,
+  return pedir(`/eventos/${id}`, enviarJson("PUT", dados));
+}
+
+export function apagarEvento(id) {
+  return pedir(`/eventos/${id}`, { method: "DELETE" });
+}
+
+export function listarIngressos(eventoId) {
+  return pedir(`/eventos/${eventoId}/ingressos`);
+}
+
+export function criarIngresso(eventoId, dados) {
+  return pedir(`/eventos/${eventoId}/ingressos`, enviarJson("POST", dados));
+}
+
+export function registrar(dados) {
+  return pedir("/auth/registro", enviarJson("POST", dados));
+}
+
+export function login(dados) {
+  return pedir("/auth/login", enviarJson("POST", dados));
+}
