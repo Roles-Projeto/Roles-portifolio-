@@ -1,0 +1,278 @@
+.form-cab {
+  margin-bottom: 28px;
+}
+
+.form-cab .titulo {
+  margin-bottom: 8px;
+}
+
+.form-sub {
+  margin: 0;
+  max-width: 56ch;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.form-lugar {
+  display: grid;
+  gap: 20px;
+}
+
+.form-lugar[hidden] {
+  display: none;
+}
+
+/* Cada seção vira um cartão */
+.form-lugar fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 24px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+.form-lugar legend {
+  float: left;
+  width: 100%;
+  padding: 0;
+  margin-bottom: 4px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.form-lugar legend + * {
+  clear: both;
+}
+
+.secao-sub {
+  margin: 0 0 20px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.form-lugar .campo-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  margin-bottom: 16px;
+}
+
+.form-lugar .campo-form > span {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.form-lugar .linha {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 16px;
+}
+
+.form-lugar .linha-uf {
+  grid-template-columns: 1fr 110px;
+}
+
+.form-lugar input[type="text"],
+.form-lugar input[type="tel"],
+.form-lugar select,
+.form-lugar textarea {
+  width: 100%;
+  padding: 12px 14px;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.form-lugar textarea {
+  resize: vertical;
+}
+
+.form-lugar input:hover,
+.form-lugar select:hover,
+.form-lugar textarea:hover {
+  border-color: #cfcbd9;
+}
+
+.form-lugar input:focus,
+.form-lugar select:focus,
+.form-lugar textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.15);
+}
+
+.form-lugar ::placeholder {
+  color: #a9a6b6;
+}
+
+/* Botões secundários */
+.form-lugar .botao-secundario {
+  padding: 10px 18px;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.form-lugar .botao-secundario:hover:not(:disabled) {
+  border-color: var(--ink);
+  background: var(--surface);
+}
+
+.form-lugar .botao-secundario:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* Upload de imagem */
+.upload {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.upload-previa {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 160px;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  color: var(--muted);
+  text-align: center;
+  background: var(--surface);
+  border: 2px dashed var(--border);
+  border-radius: 14px;
+}
+
+.upload-previa img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.upload-previa:has(img) {
+  border-style: solid;
+}
+
+.upload-previa.carregando {
+  opacity: 0.5;
+}
+
+.upload-vazio {
+  padding: 8px;
+  font-size: 0.78rem;
+}
+
+.upload-lado {
+  min-width: 0;
+}
+
+.upload-botoes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.upload-lado .dica {
+  margin: 10px 0 0;
+}
+
+.dica.erro {
+  color: #b42318;
+}
+
+.link-remover {
+  padding: 0;
+  font: inherit;
+  font-size: 0.85rem;
+  color: #b42318;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* Caixa de erros */
+.form-lugar .erros {
+  padding: 14px 18px;
+  font-size: 0.9rem;
+  color: #b42318;
+  background: #fef3f2;
+  border: 1px solid #f1c4c0;
+  border-radius: 12px;
+}
+
+.form-lugar .erros[hidden] {
+  display: none;
+}
+
+.form-lugar .erros ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+/* Barra de ações no fim */
+.form-acoes {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 20px;
+  padding: 16px 0;
+  background: linear-gradient(to top, var(--bg) 70%, rgba(255, 255, 255, 0));
+}
+
+.cancelar {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.cancelar:hover {
+  color: var(--ink);
+}
+
+@media (max-width: 600px) {
+  .form-lugar fieldset {
+    padding: 18px 16px;
+  }
+
+  .form-lugar .linha {
+    grid-template-columns: 1fr;
+  }
+
+  .form-lugar .linha-uf {
+    grid-template-columns: 1fr 90px;
+  }
+
+  .upload {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .upload-previa {
+    width: 100%;
+    max-width: 280px;
+  }
+
+  .form-acoes .botao {
+    flex: 1;
+  }
+}

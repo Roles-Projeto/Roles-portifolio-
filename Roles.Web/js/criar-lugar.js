@@ -1,7 +1,8 @@
 import { buscarLugar, criarLugar, atualizarLugar } from "./api.js";
 import { estaLogada, lerUsuario } from "./auth.js";
 import { escapar, mensagemDoErro } from "./util.js";
-import { NOMES_DIAS } from "./horarios.js";
+import { NOMES_DIAS, situacao } from "./horarios.js";
+import { enviarImagem, validarImagem } from "./upload.js";
 
 // Deve ser igual à lista da API (Roles.Api/Models/LugarTipos.cs).
 const TIPOS = [
@@ -19,6 +20,7 @@ const TIPOS = [
 
 // Segunda a domingo na tela (0 = domingo, como a API espera).
 const ORDEM_DIAS = [1, 2, 3, 4, 5, 6, 0];
+const MSG_IMAGEM = "JPG, PNG ou WebP, até 5 MB.";
 
 // criar-lugar.html        -> cadastrar
 // criar-lugar.html?id=3   -> editar o lugar 3
@@ -32,12 +34,27 @@ if (!estaLogada()) {
 }
 
 const form = document.getElementById("form-lugar");
-const elTitulo = document.querySelector("h1.titulo");
+const elTitulo = document.getElementById("cad-titulo");
+const elSub = document.getElementById("cad-sub");
+const elSeletor = document.getElementById("cad-tipo");
 const elErros = document.getElementById("erros");
 const botao = document.getElementById("botao-salvar");
 const elTipo = document.getElementById("tipo");
 const elHorarios = document.getElementById("horarios");
 const botaoCopiar = document.getElementById("copiar-horario");
+
+const campoImagem = document.getElementById("imagem");
+const arquivoImagem = document.getElementById("arquivo-imagem");
+const areaUpload = document.getElementById("upload-area");
+const botaoEscolher = document.getElementById("upload-escolher");
+const botaoRemover = document.getElementById("upload-remover");
+const msgImagem = document.getElementById("upload-msg");
+
+const pvCapa = document.getElementById("pv-capa");
+const pvTipo = document.getElementById("pv-tipo");
+const pvNome = document.getElementById("pv-nome");
+const pvLocal = document.getElementById("pv-local");
+const pvSit = document.getElementById("pv-sit");
 
 // Texto em branco vira null (a API entende como "não informado").
 function textoOuNulo(valor) {
@@ -129,6 +146,75 @@ function lerHorarios() {
   return { horarios, problemas };
 }
 
+// Prévia ao vivo: monta o card com o que já foi digitado.
+function atualizarPrevia() {
+  const l = lerLugar();
+  const faixa = Math.min(3, Math.max(0, Number(l.faixaPreco) || 0));
+
+  pvCapa.innerHTML = l.imagem
+    ? `<img src="${escapar(l.imagem)}" alt="">`
+    : escapar((l.nome.charAt(0) || "?").toUpperCase());
+
+  const tipo = l.tipo || "Tipo do lugar";
+  pvTipo.textContent = faixa ? `${tipo} · ${"$".repeat(faixa)}` : tipo;
+
+  pvNome.textContent = l.nome || "Nome do lugar";
+  pvNome.classList.toggle("vazio", !l.nome);
+
+  const local = [l.bairro, l.cidade].filter(Boolean).join(" · ");
+  pvLocal.textContent = local || "Bairro · Cidade";
+  pvLocal.classList.toggle("vazio", !local);
+
+  let situ = null;
+  try {
+    situ = situacao(lerHorarios().horarios);
+  } catch {
+    // horário incompleto: a prévia só não mostra a situação
+  }
+  pvSit.textContent = situ ? situ.texto : "";
+  pvSit.classList.toggle("fechado", Boolean(situ) && !situ.aberto);
+}
+
+// Atualiza a prévia da imagem e o campo escondido que vai para a API.
+function definirImagem(url) {
+  campoImagem.value = url ?? "";
+  botaoRemover.hidden = !url;
+  botaoEscolher.textContent = url ? "Trocar imagem" : "Escolher imagem";
+  atualizarPrevia();
+}
+
+function avisoImagem(texto, ehErro = false) {
+  msgImagem.textContent = texto;
+  msgImagem.classList.toggle("erro", ehErro);
+}
+
+async function subirArquivo(arquivo) {
+  const problema = validarImagem(arquivo);
+  if (problema) {
+    avisoImagem(problema, true);
+    return;
+  }
+
+  // Bloqueia o envio do formulário enquanto a imagem sobe.
+  botao.disabled = true;
+  botaoEscolher.disabled = true;
+  areaUpload.classList.add("carregando");
+  avisoImagem("Enviando imagem...");
+
+  try {
+    definirImagem(await enviarImagem(arquivo));
+    avisoImagem(MSG_IMAGEM);
+  } catch (erro) {
+    console.error(erro);
+    avisoImagem(erro.message, true);
+  } finally {
+    botao.disabled = false;
+    botaoEscolher.disabled = false;
+    areaUpload.classList.remove("carregando");
+    arquivoImagem.value = "";
+  }
+}
+
 // Preenche o formulário com os dados do lugar (modo edição).
 function preencherFormulario(l) {
   const valores = {
@@ -136,7 +222,6 @@ function preencherFormulario(l) {
     tipo: l.tipo,
     faixaPreco: l.faixaPreco,
     descricao: l.descricao,
-    imagem: l.imagem,
     cep: l.cep,
     rua: l.rua,
     bairro: l.bairro,
@@ -161,6 +246,8 @@ function preencherFormulario(l) {
       fecha: h.fecha ? String(h.fecha).slice(0, 5) : "",
     });
   }
+
+  definirImagem(l.imagem);
 }
 
 function mostrarErros(mensagens) {
@@ -177,6 +264,8 @@ function esconderErros() {
 // Modo edição: busca o lugar, confere se a pessoa é a dona e preenche o formulário.
 async function iniciarEdicao() {
   elTitulo.textContent = "Editar lugar";
+  elSub.textContent = "Mude o que quiser e veja a prévia ao lado.";
+  elSeletor.hidden = true;
   botao.textContent = "Salvar alterações";
   form.hidden = true;
 
@@ -203,11 +292,15 @@ async function iniciarEdicao() {
 }
 
 // Eventos da tela
+form.addEventListener("input", atualizarPrevia);
+form.addEventListener("change", atualizarPrevia);
+
 elHorarios.addEventListener("change", (evento) => {
   if (!evento.target.matches(".h-fechado")) return;
 
   const linha = evento.target.closest(".horario-linha");
   aplicarLinha(linha, estadoDaLinha(linha));
+  atualizarPrevia();
 });
 
 botaoCopiar.addEventListener("click", () => {
@@ -217,6 +310,33 @@ botaoCopiar.addEventListener("click", () => {
   elHorarios.querySelectorAll(".horario-linha").forEach((linha) => {
     if (linha !== segunda) aplicarLinha(linha, estado);
   });
+  atualizarPrevia();
+});
+
+botaoEscolher.addEventListener("click", () => arquivoImagem.click());
+
+botaoRemover.addEventListener("click", () => {
+  definirImagem("");
+  avisoImagem(MSG_IMAGEM);
+});
+
+arquivoImagem.addEventListener("change", () => {
+  if (arquivoImagem.files[0]) subirArquivo(arquivoImagem.files[0]);
+});
+
+// Arrastar e soltar a imagem na área pontilhada.
+areaUpload.addEventListener("dragover", (evento) => {
+  evento.preventDefault();
+  areaUpload.classList.add("arrastando");
+});
+
+areaUpload.addEventListener("dragleave", () => areaUpload.classList.remove("arrastando"));
+
+areaUpload.addEventListener("drop", (evento) => {
+  evento.preventDefault();
+  areaUpload.classList.remove("arrastando");
+  const arquivo = evento.dataTransfer.files[0];
+  if (arquivo) subirArquivo(arquivo);
 });
 
 form.addEventListener("submit", async (evento) => {
@@ -259,6 +379,7 @@ form.addEventListener("submit", async (evento) => {
 
 montarTipos();
 montarHorarios();
+definirImagem("");
 
 // Só prepara a edição se a pessoa está logada (senão o redirecionamento acima já foi pedido).
 if (estaLogada() && editando) {

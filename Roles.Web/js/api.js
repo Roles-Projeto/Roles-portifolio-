@@ -138,3 +138,7 @@ export function apagarIngresso(eventoId, id) {
 export function listarLugaresDaHome() {
   return pedir("/lugares");
 }
+
+export function listarMeusLugares() {
+  return pedir("/lugares/meus");
+}

@@ -1,0 +1,359 @@
+/* Layout compartilhado de cadastro (lugar e, depois, evento) */
+.cad {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  align-items: start;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 32px 80px;
+  gap: 0 48px;
+}
+
+.cad-cab h1 {
+  margin: 0 0 8px;
+  font-size: clamp(2rem, 4vw, 2.6rem);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.cad-cab p {
+  margin: 0 0 24px;
+  max-width: 56ch;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+/* Seletor Evento | Lugar */
+.cad-tipo {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 32px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+
+.cad-tipo[hidden] {
+  display: none;
+}
+
+.cad-tipo a {
+  flex: 1;
+  padding: 11px 16px;
+  font-weight: 600;
+  text-align: center;
+  border-radius: 999px;
+  transition: background 0.15s;
+}
+
+.cad-tipo a:hover {
+  background: #ecebf3;
+}
+
+.cad-tipo a[aria-current="page"] {
+  color: #fff;
+  background: var(--ink);
+}
+
+/* Blocos separados por linha, sem cartões */
+.cad-bloco {
+  padding: 28px 0;
+  border-top: 1px solid var(--border);
+}
+
+.cad-bloco:first-of-type {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.cad-bloco h2 {
+  margin: 0 0 18px;
+  font-size: 1.15rem;
+  letter-spacing: -0.01em;
+}
+
+.cad-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  margin-bottom: 16px;
+}
+
+.cad-campo > span {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.cad-linha {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 16px;
+}
+
+.cad-linha-uf {
+  grid-template-columns: 1fr 110px;
+}
+
+.cad-campo input[type="text"],
+.cad-campo input[type="tel"],
+.cad-campo select,
+.cad-campo textarea {
+  width: 100%;
+  padding: 12px 14px;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.cad-campo textarea {
+  resize: vertical;
+}
+
+.cad-campo :is(input, select, textarea):focus,
+.horario-linha input[type="time"]:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.15);
+}
+
+.cad ::placeholder {
+  color: #8d8a9b;
+}
+
+.cad-dica {
+  margin: 10px 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.cad-dica.erro {
+  color: #b42318;
+}
+
+.cad-btn-sec {
+  padding: 10px 18px;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.cad-btn-sec:hover:not(:disabled) {
+  background: var(--surface);
+}
+
+.cad-btn-sec:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+#copiar-horario {
+  margin-top: 16px;
+}
+
+/* Área de imagem */
+.cad-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 28px 16px;
+  text-align: center;
+  background: var(--surface);
+  border: 2px dashed var(--border);
+  border-radius: 16px;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.cad-upload.arrastando {
+  background: #f1ebfd;
+  border-color: var(--accent);
+}
+
+.cad-upload.carregando {
+  opacity: 0.6;
+}
+
+.cad-upload-titulo {
+  margin: 0;
+  font-weight: 600;
+}
+
+.cad-upload .cad-dica {
+  margin: 0;
+}
+
+.cad-remover {
+  padding: 0;
+  font: inherit;
+  font-size: 0.85rem;
+  color: #b42318;
+  background: none;
+  border: 0;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.cad-erros {
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+  color: #b42318;
+  background: #fef3f2;
+  border: 1px solid #f1c4c0;
+  border-radius: 12px;
+}
+
+.cad-erros[hidden] {
+  display: none;
+}
+
+.cad-erros ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.cad-acoes {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 20px;
+  padding: 16px 0;
+  background: linear-gradient(to top, var(--bg) 70%, rgba(255, 255, 255, 0));
+}
+
+.cad-cancelar {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.cad-cancelar:hover {
+  color: var(--ink);
+}
+
+/* Prévia ao vivo */
+.cad-previa {
+  position: sticky;
+  top: 96px;
+  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+}
+
+.cad-previa-rotulo {
+  margin: 0 0 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.cad-previa-nota {
+  margin: 14px 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.pv-card {
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+.pv-capa {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 180px;
+  overflow: hidden;
+  font-size: 3.4rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+  background: linear-gradient(135deg, #1c1b22, #4c1d95);
+}
+
+.pv-capa img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pv-corpo {
+  padding: 14px 16px 16px;
+}
+
+.pv-tipo {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.pv-corpo h3 {
+  margin: 4px 0;
+  font-size: 1.1rem;
+  overflow-wrap: anywhere;
+}
+
+.pv-corpo h3.vazio,
+.pv-local.vazio {
+  color: #8d8a9b;
+  font-weight: 400;
+}
+
+.pv-local {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.pv-sit {
+  margin: 8px 0 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #0f7a3d;
+}
+
+.pv-sit.fechado {
+  color: #b42318;
+}
+
+@media (max-width: 900px) {
+  .cad {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 28px 16px 64px;
+  }
+
+  .cad-previa {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .cad-linha {
+    grid-template-columns: 1fr;
+  }
+
+  .cad-linha-uf {
+    grid-template-columns: 1fr 90px;
+  }
+
+  .cad-acoes .botao {
+    flex: 1;
+  }
+}

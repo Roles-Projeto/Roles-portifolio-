@@ -1,0 +1,49 @@
+.ml-topo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+  margin-bottom: 8px;
+}
+
+.ml-topo .titulo {
+  margin: 0;
+}
+
+.ml-acoes {
+  display: flex;
+  gap: 8px;
+  padding: 12px 0 0;
+}
+
+.ml-btn {
+  padding: 8px 16px;
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.ml-btn:hover {
+  border-color: var(--ink);
+}
+
+.ml-btn.perigo {
+  color: #b42318;
+  border-color: #f1c4c0;
+}
+
+.ml-btn.perigo:hover {
+  background: #fef3f2;
+  border-color: #b42318;
+}
+
+.ml-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}

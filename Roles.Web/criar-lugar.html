@@ -6,6 +6,7 @@
   <title>Cadastrar lugar · Rolês</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/formulario.css">
+  <link rel="stylesheet" href="css/cadastro.css">
 </head>
 <body>
   <header class="topo">
@@ -13,112 +14,135 @@
     <nav id="menu" class="menu"></nav>
   </header>
 
-  <main class="conteudo estreito">
-    <a class="voltar" href="lugares.html">← Voltar para os lugares</a>
-    <h1 class="titulo">Cadastrar lugar</h1>
+  <main class="cad">
+    <div class="cad-form">
+      <div class="cad-cab">
+        <h1 id="cad-titulo">Cadastrar</h1>
+        <p id="cad-sub">Preencha à esquerda e veja o resultado ao lado. Campos com * são obrigatórios.</p>
+      </div>
 
-    <form id="form-lugar" novalidate>
-      <fieldset>
-        <legend>Informações básicas</legend>
+      <nav id="cad-tipo" class="cad-tipo" aria-label="O que você quer cadastrar">
+        <a href="criar-evento.html">Evento</a>
+        <a href="criar-lugar.html" aria-current="page">Lugar</a>
+      </nav>
 
-        <label class="campo-form">
-          <span>Nome do lugar *</span>
-          <input type="text" name="nome" required minlength="3" maxlength="200">
-        </label>
+      <form id="form-lugar" novalidate>
+        <section class="cad-bloco">
+          <h2>Informações básicas</h2>
 
-        <div class="linha">
-          <label class="campo-form">
-            <span>Tipo *</span>
-            <select name="tipo" id="tipo" required></select>
+          <label class="cad-campo">
+            <span>Nome do lugar *</span>
+            <input type="text" name="nome" required minlength="3" maxlength="200" placeholder="Ex.: Pub do Teste">
           </label>
 
-          <label class="campo-form">
-            <span>Faixa de preço</span>
-            <select name="faixaPreco">
-              <option value="">Não informar</option>
-              <option value="1">$ · Barato</option>
-              <option value="2">$$ · Moderado</option>
-              <option value="3">$$$ · Caro</option>
-            </select>
+          <div class="cad-linha">
+            <label class="cad-campo">
+              <span>Tipo *</span>
+              <select name="tipo" id="tipo" required></select>
+            </label>
+            <label class="cad-campo">
+              <span>Faixa de preço</span>
+              <select name="faixaPreco">
+                <option value="">Não informar</option>
+                <option value="1">$ · Barato</option>
+                <option value="2">$$ · Moderado</option>
+                <option value="3">$$$ · Caro</option>
+              </select>
+            </label>
+          </div>
+
+          <label class="cad-campo">
+            <span>Descrição</span>
+            <textarea name="descricao" rows="4" placeholder="Conte o clima, as atrações e o que o lugar tem de especial."></textarea>
           </label>
+
+          <div class="cad-campo">
+            <span>Imagem de capa</span>
+            <input type="hidden" name="imagem" id="imagem">
+            <input type="file" id="arquivo-imagem" accept="image/jpeg,image/png,image/webp" hidden>
+            <div class="cad-upload" id="upload-area">
+              <p class="cad-upload-titulo">Arraste a imagem aqui</p>
+              <button id="upload-escolher" class="cad-btn-sec" type="button">Escolher imagem</button>
+              <button id="upload-remover" class="cad-remover" type="button" hidden>Remover imagem</button>
+              <p id="upload-msg" class="cad-dica">JPG, PNG ou WebP, até 5 MB.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="cad-bloco">
+          <h2>Onde fica</h2>
+          <div class="cad-linha">
+            <label class="cad-campo">
+              <span>CEP</span>
+              <input type="text" name="cep" maxlength="9" placeholder="00000-000">
+            </label>
+            <label class="cad-campo">
+              <span>Rua e número</span>
+              <input type="text" name="rua" maxlength="200">
+            </label>
+          </div>
+          <label class="cad-campo">
+            <span>Bairro</span>
+            <input type="text" name="bairro" maxlength="100">
+          </label>
+          <div class="cad-linha cad-linha-uf">
+            <label class="cad-campo">
+              <span>Cidade *</span>
+              <input type="text" name="cidade" required maxlength="100">
+            </label>
+            <label class="cad-campo">
+              <span>UF</span>
+              <input type="text" name="estado" maxlength="2" pattern="[A-Za-z]{2}" placeholder="GO">
+            </label>
+          </div>
+        </section>
+
+        <section class="cad-bloco">
+          <h2>Contato</h2>
+          <div class="cad-linha">
+            <label class="cad-campo">
+              <span>Telefone</span>
+              <input type="tel" name="telefone" maxlength="20" placeholder="(62) 99999-9999">
+            </label>
+            <label class="cad-campo">
+              <span>Instagram</span>
+              <input type="text" name="instagram" maxlength="100" placeholder="@seulugar">
+            </label>
+          </div>
+        </section>
+
+        <section class="cad-bloco">
+          <h2>Horários de funcionamento</h2>
+          <div class="horario-cab" aria-hidden="true">
+            <span>Dia</span><span>Abre</span><span>Fecha</span><span></span>
+          </div>
+          <div id="horarios" class="horarios"></div>
+          <button id="copiar-horario" class="cad-btn-sec" type="button">Copiar horário de segunda para todos os dias</button>
+          <p class="cad-dica">Deixe em branco os dias que você não quer informar. Se fecha depois da meia-noite, é só colocar o horário de fechamento (ex.: abre 22:00, fecha 05:00).</p>
+        </section>
+
+        <div id="erros" class="cad-erros" role="alert" hidden></div>
+
+        <div class="cad-acoes">
+          <a class="cad-cancelar" href="lugares.html">Cancelar</a>
+          <button id="botao-salvar" class="botao" type="submit">Cadastrar lugar</button>
         </div>
+      </form>
+    </div>
 
-        <label class="campo-form">
-          <span>Descrição</span>
-          <textarea name="descricao" rows="4"></textarea>
-        </label>
-
-        <label class="campo-form">
-          <span>Link da imagem de capa</span>
-          <input type="url" name="imagem" maxlength="500" placeholder="https://...">
-        </label>
-      </fieldset>
-
-      <fieldset>
-        <legend>Endereço</legend>
-
-        <div class="linha">
-          <label class="campo-form">
-            <span>CEP</span>
-            <input type="text" name="cep" maxlength="9" placeholder="00000-000">
-          </label>
-
-          <label class="campo-form">
-            <span>Rua e número</span>
-            <input type="text" name="rua" maxlength="200">
-          </label>
+    <aside class="cad-previa" aria-label="Prévia do card">
+      <p class="cad-previa-rotulo">Prévia ao vivo</p>
+      <div class="pv-card">
+        <div class="pv-capa" id="pv-capa"></div>
+        <div class="pv-corpo">
+          <span class="pv-tipo" id="pv-tipo"></span>
+          <h3 id="pv-nome"></h3>
+          <p class="pv-local" id="pv-local"></p>
+          <p class="pv-sit" id="pv-sit"></p>
         </div>
-
-        <label class="campo-form">
-          <span>Bairro</span>
-          <input type="text" name="bairro" maxlength="100">
-        </label>
-
-        <div class="linha">
-          <label class="campo-form">
-            <span>Cidade *</span>
-            <input type="text" name="cidade" required maxlength="100">
-          </label>
-
-          <label class="campo-form curto">
-            <span>UF</span>
-            <input type="text" name="estado" maxlength="2" pattern="[A-Za-z]{2}" placeholder="GO">
-          </label>
-        </div>
-      </fieldset>
-
-      <fieldset>
-        <legend>Contato</legend>
-
-        <div class="linha">
-          <label class="campo-form">
-            <span>Telefone</span>
-            <input type="tel" name="telefone" maxlength="20" placeholder="(62) 99999-9999">
-          </label>
-
-          <label class="campo-form">
-            <span>Instagram</span>
-            <input type="text" name="instagram" maxlength="100" placeholder="@seulugar">
-          </label>
-        </div>
-      </fieldset>
-
-      <fieldset>
-        <legend>Horários de funcionamento</legend>
-
-        <div class="horario-cab" aria-hidden="true">
-          <span>Dia</span><span>Abre</span><span>Fecha</span><span></span>
-        </div>
-        <div id="horarios" class="horarios"></div>
-
-        <button id="copiar-horario" class="botao-secundario" type="button">Copiar horário de segunda para todos os dias</button>
-        <p class="dica">Deixe em branco os dias que você não quer informar. Se o lugar fecha depois da meia-noite, é só colocar o horário de fechamento (ex.: abre 22:00, fecha 05:00).</p>
-      </fieldset>
-
-      <div id="erros" class="erros" role="alert" hidden></div>
-
-      <button id="botao-salvar" class="botao" type="submit">Cadastrar lugar</button>
-    </form>
+      </div>
+      <p class="cad-previa-nota">É assim que o card aparece na lista de lugares.</p>
+    </aside>
   </main>
 
   <script type="module" src="js/menu.js"></script>
