@@ -71,6 +71,8 @@ public class EventosController : ControllerBase
         if (dto.DataFim.HasValue && dto.DataFim.Value < dto.DataInicio)
             return BadRequest(new { mensagem = "A data de fim não pode ser anterior à data de início." });
 
+                if (dto.LugarId.HasValue && !await _db.Lugares.AnyAsync(l => l.Id == dto.LugarId))
+            return BadRequest(new { mensagem = "O lugar informado não existe." });
         var evento = new Evento
         {
             Nome = dto.Nome.Trim(),
@@ -87,7 +89,9 @@ public class EventosController : ControllerBase
             Estado = dto.Estado?.ToUpperInvariant(),
             NomeProdutor = dto.NomeProdutor,
             CriadoEm = SemFuso(DateTime.UtcNow),
+            LugarId = dto.LugarId,
             UsuarioId = usuarioId
+            
         };
 
         _db.Eventos.Add(evento);
@@ -126,6 +130,7 @@ public class EventosController : ControllerBase
         evento.Cidade = dto.Cidade;
         evento.Estado = dto.Estado?.ToUpperInvariant();
         evento.NomeProdutor = dto.NomeProdutor;
+        evento.LugarId = dto.LugarId;
 
         await _db.SaveChangesAsync();
 

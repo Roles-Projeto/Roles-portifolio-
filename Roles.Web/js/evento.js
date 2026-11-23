@@ -2,10 +2,26 @@ import { buscarEvento, listarIngressos } from "./api.js";
 import { escapar, formatarDataCompleta, formatarMoeda } from "./util.js";
 
 const elStatus = document.getElementById("status");
-const elEvento = document.getElementById("evento");
+const elTopo = document.getElementById("topo");
+const elCorpo = document.getElementById("corpo");
 
 // Lê o ?id=3 do endereço da página.
 const id = Number(new URLSearchParams(window.location.search).get("id"));
+
+const ICONE_RELOGIO = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>`;
+const ICONE_LOCAL = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>`;
+
+function dataValida(iso) {
+  const data = new Date(iso);
+  return Number.isNaN(data.getTime()) ? null : data;
+}
+
+// A categoria pode vir como texto ou como objeto com "nome".
+function textoCategoria(categoria) {
+  if (!categoria) return "";
+  if (typeof categoria === "string") return categoria.trim();
+  return String(categoria.nome ?? "").trim();
+}
 
 function htmlIngressos(ingressos) {
   if (ingressos.length === 0) {
@@ -15,75 +31,112 @@ function htmlIngressos(ingressos) {
   const itens = ingressos
     .map((i) => {
       const preco = i.tipo === "gratuito" ? "Gratuito" : formatarMoeda(i.valor);
+      const qtd = Number(i.quantidadeTotal);
       return `
         <li class="ingresso">
-          <div>
-            <strong>${escapar(i.titulo)}</strong>
-            <span class="suave">${escapar(i.quantidadeTotal)} ingressos</span>
-          </div>
+          <span class="ingresso-nome">${escapar(i.titulo)}</span>
+          <span class="ingresso-qtd">${escapar(qtd)} ${qtd === 1 ? "ingresso" : "ingressos"}</span>
           <span class="preco">${escapar(preco)}</span>
+          <button type="button" class="comprar">Comprar</button>
         </li>`;
     })
     .join("");
 
-  return `<ul class="ingressos">${itens}</ul>`;
+  return `<ul class="ingressos">${itens}</ul>
+    <p class="aviso" id="aviso" hidden>A compra de ingressos ainda está em desenvolvimento.</p>`;
 }
 
 function renderizar(e) {
   document.title = `${e.nome} · Rolês`;
 
-  const capa = e.imagem
+  const data = dataValida(e.dataInicio);
+  const tom = Number(e.id ?? id) % 6;
+
+  const fundo = e.imagem
     ? `<img src="${escapar(e.imagem)}" alt="">`
-    : `<span class="capa-inicial">${escapar(e.nome.charAt(0))}</span>`;
+    : `<span class="det-inicial">${escapar(e.nome.charAt(0).toUpperCase())}</span>`;
 
-  const endereco = [e.rua, e.cep, [e.cidade, e.estado].filter(Boolean).join("/")]
-    .filter(Boolean)
-    .join(" · ");
-
-  const fim = e.dataFim
-    ? `<p class="termino">Termina em ${escapar(formatarDataCompleta(e.dataFim))}</p>`
+  const selo = data
+    ? `<span class="det-data">
+         <strong>${String(data.getDate()).padStart(2, "0")}</strong>
+         <small>${escapar(data.toLocaleDateString("pt-BR", { month: "short" }).replace(".", ""))}</small>
+       </span>`
     : "";
 
-  elEvento.innerHTML = `
-    <div class="detalhe">
-      <div class="capa">${capa}</div>
+  const categoria = textoCategoria(e.categoria);
+  const etiqueta = categoria ? `<span class="det-etiqueta">${escapar(categoria)}</span>` : "";
 
-      <div class="info">
-        <p class="selo">${escapar(e.categoria ?? "Evento")}</p>
+  const quando = data
+    ? `<p class="det-linha">${ICONE_RELOGIO}<span>${escapar(formatarDataCompleta(e.dataInicio))}${
+        e.dataFim ? `<small>Termina em ${escapar(formatarDataCompleta(e.dataFim))}</small>` : ""
+      }</span></p>`
+    : "";
+
+  const cidadeEstado = [e.cidade, e.estado].filter(Boolean).join("/");
+  const resumoLocal = [e.localNome, cidadeEstado].filter(Boolean).join(" · ");
+  const onde = resumoLocal
+    ? `<p class="det-linha">${ICONE_LOCAL}<span>${escapar(resumoLocal)}</span></p>`
+    : "";
+
+  const endereco = [e.rua, e.cep, cidadeEstado].filter(Boolean).join(" · ");
+
+  elTopo.innerHTML = `
+    <div class="det-topo">
+      <div class="det-info">
+        ${etiqueta}
         <h1>${escapar(e.nome)}</h1>
-        <p class="data">${escapar(formatarDataCompleta(e.dataInicio))}</p>
-        ${fim}
+        ${quando}
+        ${onde}
+        <a class="det-botao" href="#ingressos">Ver ingressos</a>
+      </div>
 
-        <div class="bloco">
-          <h2>Ingressos</h2>
-          <div id="ingressos"><p class="suave">Carregando ingressos...</p></div>
-        </div>
-
-        <div class="bloco">
-          <h2>Local</h2>
-          <p><strong>${escapar(e.localNome ?? "A definir")}</strong></p>
-          <p class="suave">${escapar(endereco)}</p>
-        </div>
-
-        <div class="bloco">
-          <h2>Sobre o evento</h2>
-          <p class="descricao">${escapar(e.descricao ?? "Este evento ainda não tem descrição.")}</p>
-        </div>
-
-        <p class="suave">Organizado por ${escapar(e.nomeProdutor ?? "organizador não informado")}</p>
+      <div class="det-capa tom-${tom}">
+        ${fundo}
+        ${selo}
       </div>
     </div>`;
+
+  elCorpo.innerHTML = `
+    <section class="det-ingressos" id="ingressos">
+      <h2>Ingressos</h2>
+      <div id="lista-ingressos"><p class="suave">Carregando ingressos...</p></div>
+    </section>
+
+    <div class="det-baixo">
+      <section>
+        <h2>Sobre o evento</h2>
+        <p class="descricao">${escapar(e.descricao ?? "Este evento ainda não tem descrição.")}</p>
+      </section>
+
+      <section>
+        <h2>Local</h2>
+                <p><strong>${
+          e.lugarId
+            ? `<a class="link-lugar" href="lugar.html?id=${Number(e.lugarId)}">${escapar(e.localNome ?? "Ver o lugar")}</a>`
+            : escapar(e.localNome ?? "A definir")
+        }</strong></p>
+        <p class="suave">${escapar(endereco)}</p>
+      </section>
+    </div>
+
+    <p class="organizador">Organizado por ${escapar(e.nomeProdutor ?? "organizador não informado")}</p>`;
 }
 
 // Os ingressos vêm em uma segunda chamada: se falharem, o evento continua na tela.
 async function carregarIngressos() {
-  const elIngressos = document.getElementById("ingressos");
+  const elLista = document.getElementById("lista-ingressos");
 
   try {
     const ingressos = await listarIngressos(id);
-    elIngressos.innerHTML = htmlIngressos(ingressos);
+    elLista.innerHTML = htmlIngressos(ingressos);
+
+    elLista.addEventListener("click", (evento) => {
+      if (!evento.target.closest(".comprar")) return;
+      const aviso = document.getElementById("aviso");
+      if (aviso) aviso.hidden = false;
+    });
   } catch (erro) {
-    elIngressos.innerHTML = `<p class="suave">Não foi possível carregar os ingressos.</p>`;
+    elLista.innerHTML = `<p class="suave">Não foi possível carregar os ingressos.</p>`;
     console.error(erro);
   }
 }

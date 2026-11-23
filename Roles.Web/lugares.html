@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Bares, baladas, restaurantes e outros lugares para sair em Goiânia e região.">
+  <title>Lugares · Rolês</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/lugares.css">
+</head>
+<body>
+  <header class="topo">
+    <a class="logo" href="index.html">Rolês<span class="ponto">.</span></a>
+    <nav id="menu" class="menu"></nav>
+  </header>
+
+  <main>
+    <section class="lg-hero">
+      <div class="lg-hero-inner">
+        <h1>Lugares para sair</h1>
+        <p class="lg-sub">Bares, baladas, restaurantes, cafés e mais. Descubra onde ir hoje.</p>
+
+        <div class="lg-busca" role="search">
+          <label class="so-leitor" for="busca">Buscar lugares</label>
+          <input id="busca" type="search" placeholder="Busque por nome, bairro ou tipo" autocomplete="off">
+          <a class="botao" href="#lugares">Buscar</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="lg-secao" id="lugares">
+      <div class="lg-topo">
+        <h2>Todos os lugares</h2>
+        <p id="status" class="status" aria-live="polite">Carregando lugares...</p>
+      </div>
+
+      <div class="lg-filtros" aria-label="Filtros">
+        <div id="filtro-tipos" class="lg-abas">
+          <button type="button" class="lg-aba ativo" data-tipo="">Todos</button>
+        </div>
+
+        <div class="cidade" id="cidade">
+          <button type="button" class="cidade-botao" id="cidade-botao" aria-haspopup="listbox" aria-expanded="false">
+            <span id="cidade-texto">Todas as cidades</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <ul class="cidade-lista" id="cidade-lista" role="listbox" hidden></ul>
+        </div>
+      </div>
+
+      <div id="acoes" class="lg-acoes"></div>
+      <ul id="lista" class="lg-grade"></ul>
+    </section>
+  </main>
+
+  <script type="module" src="js/menu.js"></script>
+  <script type="module" src="js/lugares.js"></script>
+</body>
+</html>

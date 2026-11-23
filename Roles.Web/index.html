@@ -3,8 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Rolês</title>
+  <meta name="description" content="Descubra shows, festivais, teatro e outros eventos em Goiânia e região.">
+  <title>Rolês · Descubra o que fazer</title>
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/index.css">
 </head>
 <body>
   <header class="topo">
@@ -12,27 +14,63 @@
     <nav id="menu" class="menu"></nav>
   </header>
 
-  <main class="conteudo">
-    <h2 class="titulo">Descubra o que fazer</h2>
+  <main>
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="hero-texto">
+          <h1>Os melhores eventos de Goiânia, num só lugar.</h1>
+          <p class="hero-sub">Shows, teatro e festivais. Escolha o seu e garanta o ingresso.</p>
 
-    <section class="filtros">
-      <label class="campo">
-        <span>Cidade</span>
-        <select id="filtro-cidade">
-          <option value="">Todas as cidades</option>
-        </select>
-      </label>
+          <div class="busca-hero" role="search">
+            <label class="so-leitor" for="busca">Buscar eventos</label>
+            <input id="busca" type="search" placeholder="Busque por evento ou local" autocomplete="off">
+            <a class="botao" href="#eventos">Buscar</a>
+          </div>
 
-      <div id="filtro-categorias" class="chips">
-        <button type="button" class="chip ativo" data-categoria="">Todos</button>
+          <div id="numeros" class="numeros" hidden></div>
+        </div>
+
+        <div id="carrossel" class="carrossel" aria-roledescription="carrossel" aria-label="Eventos em destaque" hidden></div>
       </div>
     </section>
 
-    <p id="status" class="status">Carregando eventos...</p>
-    <ul id="lista" class="grade"></ul>
+    <section class="secao" id="eventos">
+      <div class="secao-topo">
+        <h2>Próximos eventos</h2>
+        <p id="status" class="status" aria-live="polite">Carregando eventos...</p>
+      </div>
+
+      <div class="filtros" aria-label="Filtros">
+        <div class="cidade" id="cidade">
+  <button type="button" class="cidade-botao" id="cidade-botao" aria-haspopup="listbox" aria-expanded="false">
+    <span id="cidade-texto">Todas as cidades</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+  </button>
+  <ul class="cidade-lista" id="cidade-lista" role="listbox" hidden></ul>
+</div>
+
+        <div id="filtro-categorias" class="chips">
+          <button type="button" class="chip ativo" data-categoria="">Todos</button>
+        </div>
+      </div>
+
+      <div id="acoes" class="acoes-status"></div>
+      <ul id="lista" class="ev-grade"></ul>
+    </section>
+
+    <section class="cta">
+      <div class="cta-caixa">
+        <div>
+          <h2>Tem um evento para divulgar?</h2>
+          <p>Cadastre o seu evento, defina os ingressos e apareça para quem procura o que fazer na cidade.</p>
+        </div>
+        <a class="botao" href="criar-evento.html">Criar evento</a>
+      </div>
+    </section>
   </main>
 
   <script type="module" src="js/menu.js"></script>
   <script type="module" src="js/eventos.js"></script>
+    <script type="module" src="js/perfil.js"></script>
 </body>
 </html>

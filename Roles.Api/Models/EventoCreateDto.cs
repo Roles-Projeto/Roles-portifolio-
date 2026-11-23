@@ -41,4 +41,5 @@ public class EventoCreateDto
 
     [StringLength(200)]
     public string? NomeProdutor { get; set; }
+        public int? LugarId { get; set; }
 }

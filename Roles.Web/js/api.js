@@ -96,3 +96,33 @@ export function registrar(dados) {
 export function login(dados) {
   return pedir("/auth/login", enviarJson("POST", dados));
 }
+
+export function listarLugares({ cidade = "", tipo = "", busca = "" } = {}) {
+  const params = new URLSearchParams();
+  if (cidade) params.set("cidade", cidade);
+  if (tipo) params.set("tipo", tipo);
+  if (busca) params.set("busca", busca);
+
+  const texto = params.toString();
+  return pedir(`/lugares${texto ? `?${texto}` : ""}`);
+}
+
+export function buscarLugar(id) {
+  return pedir(`/lugares/${id}`);
+}
+
+export function listarEventosDoLugar(id) {
+  return pedir(`/lugares/${id}/eventos`);
+}
+
+export function criarLugar(dados) {
+  return pedir("/lugares", enviarJson("POST", dados));
+}
+
+export function atualizarLugar(id, dados) {
+  return pedir(`/lugares/${id}`, enviarJson("PUT", dados));
+}
+
+export function apagarLugar(id) {
+  return pedir(`/lugares/${id}`, { method: "DELETE" });
+}

@@ -20,4 +20,6 @@ public class Evento
 
     // Dono do evento (quem criou). Vem do token, nunca do corpo do pedido.
     public int? UsuarioId { get; set; }
+        // Lugar onde o evento acontece (opcional). Eventos antigos continuam sem lugar.
+    public int? LugarId { get; set; }
 }
