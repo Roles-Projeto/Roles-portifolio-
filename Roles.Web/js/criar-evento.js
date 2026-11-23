@@ -1,4 +1,12 @@
-import { buscarEvento, criarEvento, atualizarEvento, criarIngresso } from "./api.js";
+import {
+  buscarEvento,
+  criarEvento,
+  atualizarEvento,
+  criarIngresso,
+  listarIngressos,
+  atualizarIngresso,
+  apagarIngresso,
+} from "./api.js";
 import { estaLogada, lerUsuario } from "./auth.js";
 import { escapar, mensagemDoErro } from "./util.js";
 
@@ -83,15 +91,20 @@ function preencherFormulario(e) {
   }
 }
 
-// Os campos das linhas de ingresso não têm "name", então o FormData acima os ignora.
-// Eles são lidos aqui, linha por linha.
-function lerIngressos() {
-  return [...elIngressos.querySelectorAll(".ingresso-linha")].map((linha) => ({
+// Lê os campos de UMA linha de ingresso.
+function lerLinha(linha) {
+  return {
     titulo: linha.querySelector(".ing-titulo").value.trim(),
     tipo: linha.querySelector(".ing-tipo").value,
     valor: Number(linha.querySelector(".ing-valor").value || 0),
     quantidadeTotal: Number(linha.querySelector(".ing-quantidade").value),
-  }));
+  };
+}
+
+// Os campos das linhas de ingresso não têm "name", então o FormData ignora.
+// Eles são lidos aqui, linha por linha.
+function lerIngressos() {
+  return [...elIngressos.querySelectorAll(".ingresso-linha")].map(lerLinha);
 }
 
 // Ingresso gratuito trava o valor em 0.
@@ -104,8 +117,38 @@ function atualizarTipo(linha) {
   else if (campoValor.value === "0") campoValor.value = "";
 }
 
-function adicionarLinhaIngresso() {
-  elIngressos.appendChild(modelo.content.cloneNode(true));
+// Edição: cada linha ganha o botão "Salvar ingresso" e um espaço para o resultado.
+function prepararLinhaEdicao(linha) {
+  const barra = document.createElement("div");
+  barra.className = "ingresso-acoes";
+  barra.innerHTML = `
+    <button class="botao-secundario ing-salvar" type="button">Salvar ingresso</button>
+    <span class="ing-msg" role="status"></span>`;
+  linha.appendChild(barra);
+}
+
+// Cria uma linha de ingresso. Com "ingresso", ela vem preenchida (já existe na API).
+function adicionarLinhaIngresso(ingresso = null) {
+  const linha = modelo.content.cloneNode(true).firstElementChild;
+
+  if (ingresso) {
+    linha.dataset.id = String(ingresso.id);
+    linha.querySelector(".ing-titulo").value = ingresso.titulo;
+    linha.querySelector(".ing-tipo").value = ingresso.tipo;
+    linha.querySelector(".ing-valor").value = String(ingresso.valor);
+    linha.querySelector(".ing-quantidade").value = String(ingresso.quantidadeTotal);
+    atualizarTipo(linha);
+  }
+
+  if (editando) prepararLinhaEdicao(linha);
+
+  elIngressos.appendChild(linha);
+  return linha;
+}
+
+function mostrarMsgLinha(linha, texto) {
+  const elMsg = linha.querySelector(".ing-msg");
+  if (elMsg) elMsg.textContent = texto;
 }
 
 function mostrarErros(mensagens) {
@@ -132,11 +175,81 @@ function mostrarAvisoParcial(eventoIdCriado, falhas) {
   elAviso.scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
+// Na edição, as linhas de ingresso têm botão próprio e ficam fora da validação do evento.
+function formularioValido() {
+  if (!editando) return form.checkValidity();
+
+  const invalido = [...form.elements].find(
+    (campo) => !elIngressos.contains(campo) && !campo.checkValidity()
+  );
+
+  if (invalido) {
+    invalido.reportValidity();
+    return false;
+  }
+  return true;
+}
+
+// Salva uma linha: PUT se ela já existe na API, POST se é nova.
+async function salvarLinha(linha) {
+  const campos = [...linha.querySelectorAll("input, select")];
+  const invalido = campos.find((campo) => !campo.checkValidity());
+  if (invalido) {
+    invalido.reportValidity();
+    return;
+  }
+
+  const dados = lerLinha(linha);
+  if (dados.tipo === "pago" && dados.valor <= 0) {
+    mostrarMsgLinha(linha, "Ingresso pago precisa ter valor maior que 0.");
+    return;
+  }
+
+  const botaoLinha = linha.querySelector(".ing-salvar");
+  botaoLinha.disabled = true;
+  mostrarMsgLinha(linha, "Salvando...");
+
+  try {
+    if (linha.dataset.id) {
+      await atualizarIngresso(eventoId, Number(linha.dataset.id), dados);
+    } else {
+      const criado = await criarIngresso(eventoId, dados);
+      linha.dataset.id = String(criado.id);
+    }
+    mostrarMsgLinha(linha, "Salvo.");
+  } catch (erro) {
+    console.error(erro);
+    mostrarMsgLinha(linha, mensagemDoErro(erro)[0]);
+  } finally {
+    botaoLinha.disabled = false;
+  }
+}
+
+// Remove uma linha. Se ela já existe na API (edição), apaga lá também, com confirmação.
+async function removerLinha(linha) {
+  const idIngresso = linha.dataset.id;
+
+  if (!editando || !idIngresso) {
+    linha.remove();
+    return;
+  }
+
+  const titulo = linha.querySelector(".ing-titulo").value.trim() || "este ingresso";
+  if (!window.confirm(`Apagar o ingresso "${titulo}"? Isso não pode ser desfeito.`)) return;
+
+  try {
+    await apagarIngresso(eventoId, Number(idIngresso));
+    linha.remove();
+  } catch (erro) {
+    console.error(erro);
+    mostrarMsgLinha(linha, mensagemDoErro(erro)[0]);
+  }
+}
+
 // Modo edição: busca o evento, confere se a pessoa é a dona e preenche o formulário.
 async function iniciarEdicao() {
   elTitulo.textContent = "Editar evento";
   botao.textContent = "Salvar alterações";
-  blocoIngressos.hidden = true; // nesta versão a edição não mexe nos ingressos
   form.hidden = true;
 
   if (!Number.isInteger(eventoId) || eventoId <= 0) {
@@ -153,6 +266,21 @@ async function iniciarEdicao() {
     }
 
     preencherFormulario(evento);
+
+    const dica = document.createElement("p");
+    dica.className = "suave";
+    dica.textContent =
+      "Cada ingresso é salvo no botão dele, separado do botão Salvar alterações do evento.";
+    elIngressos.before(dica);
+
+    try {
+      const ingressos = await listarIngressos(eventoId);
+      ingressos.forEach((ingresso) => adicionarLinhaIngresso(ingresso));
+    } catch (erro) {
+      console.error(erro);
+      mostrarErros(["Não foi possível carregar os ingressos deste evento."]);
+    }
+
     form.hidden = false;
   } catch (erro) {
     console.error(erro);
@@ -162,11 +290,17 @@ async function iniciarEdicao() {
 }
 
 // Eventos da seção de ingressos
-botaoAdicionar.addEventListener("click", adicionarLinhaIngresso);
+botaoAdicionar.addEventListener("click", () => adicionarLinhaIngresso());
 
 elIngressos.addEventListener("click", (evento) => {
   const remover = evento.target.closest(".remover");
-  if (remover) remover.closest(".ingresso-linha").remove();
+  if (remover) {
+    removerLinha(remover.closest(".ingresso-linha"));
+    return;
+  }
+
+  const salvar = evento.target.closest(".ing-salvar");
+  if (salvar) salvarLinha(salvar.closest(".ingresso-linha"));
 });
 
 elIngressos.addEventListener("change", (evento) => {
@@ -175,16 +309,19 @@ elIngressos.addEventListener("change", (evento) => {
   }
 });
 
+// Mexeu na linha depois de salvar: o "Salvo." deixa de valer.
+elIngressos.addEventListener("input", (evento) => {
+  const linha = evento.target.closest(".ingresso-linha");
+  if (linha) mostrarMsgLinha(linha, "");
+});
+
 form.addEventListener("submit", async (evento) => {
   // Impede o navegador de recarregar a página.
   evento.preventDefault();
   esconderMensagens();
 
   // Validação do HTML (required, minlength, pattern...) antes de chamar a API.
-  if (!form.checkValidity()) {
-    form.reportValidity();
-    return;
-  }
+  if (!formularioValido()) return;
 
   const dados = lerEvento();
 

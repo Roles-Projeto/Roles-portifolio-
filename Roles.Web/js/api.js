@@ -126,3 +126,11 @@ export function atualizarLugar(id, dados) {
 export function apagarLugar(id) {
   return pedir(`/lugares/${id}`, { method: "DELETE" });
 }
+
+export function atualizarIngresso(eventoId, id, dados) {
+  return pedir(`/eventos/${eventoId}/ingressos/${id}`, enviarJson("PUT", dados));
+}
+
+export function apagarIngresso(eventoId, id) {
+  return pedir(`/eventos/${eventoId}/ingressos/${id}`, { method: "DELETE" });
+}

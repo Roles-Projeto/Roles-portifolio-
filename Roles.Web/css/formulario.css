@@ -223,3 +223,18 @@ legend {
   color: var(--ink);
   text-decoration: underline;
 }
+
+
+/* Botão e resultado de cada ingresso (modo edição) */
+.ingresso-acoes {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-basis: 100%;
+  grid-column: 1 / -1;
+}
+
+.ing-msg {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
