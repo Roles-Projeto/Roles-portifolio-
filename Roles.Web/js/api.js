@@ -134,3 +134,7 @@ export function atualizarIngresso(eventoId, id, dados) {
 export function apagarIngresso(eventoId, id) {
   return pedir(`/eventos/${eventoId}/ingressos/${id}`, { method: "DELETE" });
 }
+
+export function listarLugaresDaHome() {
+  return pedir("/lugares");
+}

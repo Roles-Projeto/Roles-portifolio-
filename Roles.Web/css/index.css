@@ -614,3 +614,87 @@
 .numeros {
   display: none !important;
 }
+
+
+/* Seção de lugares na home */
+.secao-sub {
+  margin: -8px 0 24px;
+  color: var(--muted);
+}
+
+.ver-todos {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.ver-todos:hover {
+  text-decoration: underline;
+}
+
+.lg-grade {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.lg-status {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px 6px 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--ink);
+  background: #fff;
+  border-radius: 999px;
+  box-shadow: 0 6px 16px -8px rgba(0, 0, 0, 0.4);
+}
+
+.lg-bolinha {
+  width: 8px;
+  height: 8px;
+  background: #16a34a;
+  border-radius: 50%;
+}
+
+.lg-status.fechado .lg-bolinha {
+  background: #9a97a6;
+}
+
+.lg-titulo {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.lg-titulo h3 {
+  margin: 0;
+}
+
+.lg-preco {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.lg-preco.gratis {
+  color: #15803d;
+}
+
+@media (max-width: 900px) {
+  .lg-grade {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .lg-grade {
+    grid-template-columns: 1fr;
+  }
+}
