@@ -1,7 +1,14 @@
 import { lerToken, limparSessao } from "./auth.js";
 
 // Único arquivo que conhece o endereço da API.
-const API_URL = "http://localhost:5038/api";
+// No seu computador usa a API local; no site publicado usa a Render.
+const ehLocal =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1";
+
+const API_URL = ehLocal
+  ? "http://localhost:5038/api"
+  : "https://roles-portifolio.onrender.com/api";
 
 // Extrai as mensagens de erro que a API manda no corpo da resposta.
 async function lerMensagensDeErro(resposta) {
@@ -67,25 +74,4 @@ export function criarEvento(dados) {
 }
 
 export function atualizarEvento(id, dados) {
-  return pedir(`/eventos/${id}`, enviarJson("PUT", dados));
-}
-
-export function apagarEvento(id) {
-  return pedir(`/eventos/${id}`, { method: "DELETE" });
-}
-
-export function listarIngressos(eventoId) {
-  return pedir(`/eventos/${eventoId}/ingressos`);
-}
-
-export function criarIngresso(eventoId, dados) {
-  return pedir(`/eventos/${eventoId}/ingressos`, enviarJson("POST", dados));
-}
-
-export function registrar(dados) {
-  return pedir("/auth/registro", enviarJson("POST", dados));
-}
-
-export function login(dados) {
-  return pedir("/auth/login", enviarJson("POST", dados));
-}
+  return pedir(`/eventos/${id}`,
