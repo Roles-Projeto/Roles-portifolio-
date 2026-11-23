@@ -1,7 +1,7 @@
-import { buscarLugar, listarEventosDoLugar } from "./api.js";
+import { buscarLugar, listarEventosDoLugar, apagarLugar } from "./api.js";
+import { lerUsuario } from "./auth.js";
 import { escapar, formatarDataCompleta } from "./util.js";
 import { situacao, NOMES_DIAS } from "./horarios.js";
-
 const elStatus = document.getElementById("status");
 const elTopo = document.getElementById("topo");
 const elCorpo = document.getElementById("corpo");
@@ -117,6 +117,16 @@ function renderizar(l) {
     botoes.push(`<a class="lu-btn" href="tel:${escapar(String(l.telefone).replace(/[^\d+]/g, ""))}">Ligar</a>`);
   }
 
+    // Só a dona do lugar vê editar e apagar.
+  const usuario = lerUsuario();
+  const ehDona = usuario && Number(usuario.id) === Number(l.usuarioId);
+  if (ehDona) {
+    botoes.push(
+      `<a class="lu-btn" href="criar-lugar.html?id=${Number(l.id ?? id)}">Editar</a>`,
+      `<button class="lu-btn perigo" type="button" id="apagar-lugar">Apagar</button>`
+    );
+  }
+
   elTopo.innerHTML = `
     <div class="lu-topo">
       <div class="lu-info">
@@ -167,6 +177,28 @@ async function carregarEventos() {
     console.error(erro);
   }
 }
+// Apagar: pede confirmação e volta para a lista.
+elTopo.addEventListener("click", async (evento) => {
+  const botao = evento.target.closest("#apagar-lugar");
+  if (!botao) return;
+
+  if (!window.confirm("Apagar este lugar? Essa ação não pode ser desfeita.")) return;
+
+  botao.disabled = true;
+  botao.textContent = "Apagando...";
+
+  try {
+    await apagarLugar(id);
+    window.location.href = "lugares.html";
+  } catch (erro) {
+    console.error(erro);
+    const detalhe = erro.detalhes?.[0] ?? "Não foi possível apagar o lugar.";
+    window.alert(detalhe);
+    botao.disabled = false;
+    botao.textContent = "Apagar";
+  }
+});
+
 
 async function iniciar() {
   if (!Number.isInteger(id) || id <= 0) {

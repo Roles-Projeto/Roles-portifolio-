@@ -930,3 +930,9 @@
     padding-left: 4px;
   }
 }
+
+.cta-botoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}

@@ -327,3 +327,24 @@
     display: none;
   }
 }
+
+/* Botão de apagar (é <button>, então herda a fonte) */
+button.lu-btn {
+  font: inherit;
+  cursor: pointer;
+}
+
+.lu-btn.perigo {
+  color: #b42318;
+  border-color: #f1c4c0;
+}
+
+.lu-btn.perigo:hover {
+  background: #fef3f2;
+  border-color: #b42318;
+}
+
+.lu-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
