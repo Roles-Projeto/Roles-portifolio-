@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cadastrar lugar · Rolês</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/formulario.css">
+</head>
+<body>
+  <header class="topo">
+    <a class="logo" href="index.html">Rolês<span class="ponto">.</span></a>
+    <nav id="menu" class="menu"></nav>
+  </header>
+
+  <main class="conteudo estreito">
+    <a class="voltar" href="lugares.html">← Voltar para os lugares</a>
+    <h1 class="titulo">Cadastrar lugar</h1>
+
+    <form id="form-lugar" novalidate>
+      <fieldset>
+        <legend>Informações básicas</legend>
+
+        <label class="campo-form">
+          <span>Nome do lugar *</span>
+          <input type="text" name="nome" required minlength="3" maxlength="200">
+        </label>
+
+        <div class="linha">
+          <label class="campo-form">
+            <span>Tipo *</span>
+            <select name="tipo" id="tipo" required></select>
+          </label>
+
+          <label class="campo-form">
+            <span>Faixa de preço</span>
+            <select name="faixaPreco">
+              <option value="">Não informar</option>
+              <option value="1">$ · Barato</option>
+              <option value="2">$$ · Moderado</option>
+              <option value="3">$$$ · Caro</option>
+            </select>
+          </label>
+        </div>
+
+        <label class="campo-form">
+          <span>Descrição</span>
+          <textarea name="descricao" rows="4"></textarea>
+        </label>
+
+        <label class="campo-form">
+          <span>Link da imagem de capa</span>
+          <input type="url" name="imagem" maxlength="500" placeholder="https://...">
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Endereço</legend>
+
+        <div class="linha">
+          <label class="campo-form">
+            <span>CEP</span>
+            <input type="text" name="cep" maxlength="9" placeholder="00000-000">
+          </label>
+
+          <label class="campo-form">
+            <span>Rua e número</span>
+            <input type="text" name="rua" maxlength="200">
+          </label>
+        </div>
+
+        <label class="campo-form">
+          <span>Bairro</span>
+          <input type="text" name="bairro" maxlength="100">
+        </label>
+
+        <div class="linha">
+          <label class="campo-form">
+            <span>Cidade *</span>
+            <input type="text" name="cidade" required maxlength="100">
+          </label>
+
+          <label class="campo-form curto">
+            <span>UF</span>
+            <input type="text" name="estado" maxlength="2" pattern="[A-Za-z]{2}" placeholder="GO">
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Contato</legend>
+
+        <div class="linha">
+          <label class="campo-form">
+            <span>Telefone</span>
+            <input type="tel" name="telefone" maxlength="20" placeholder="(62) 99999-9999">
+          </label>
+
+          <label class="campo-form">
+            <span>Instagram</span>
+            <input type="text" name="instagram" maxlength="100" placeholder="@seulugar">
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Horários de funcionamento</legend>
+
+        <div class="horario-cab" aria-hidden="true">
+          <span>Dia</span><span>Abre</span><span>Fecha</span><span></span>
+        </div>
+        <div id="horarios" class="horarios"></div>
+
+        <button id="copiar-horario" class="botao-secundario" type="button">Copiar horário de segunda para todos os dias</button>
+        <p class="dica">Deixe em branco os dias que você não quer informar. Se o lugar fecha depois da meia-noite, é só colocar o horário de fechamento (ex.: abre 22:00, fecha 05:00).</p>
+      </fieldset>
+
+      <div id="erros" class="erros" role="alert" hidden></div>
+
+      <button id="botao-salvar" class="botao" type="submit">Cadastrar lugar</button>
+    </form>
+  </main>
+
+  <script type="module" src="js/menu.js"></script>
+  <script type="module" src="js/criar-lugar.js"></script>
+</body>
+</html>

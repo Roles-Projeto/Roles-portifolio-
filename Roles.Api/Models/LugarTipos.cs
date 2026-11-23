@@ -11,6 +11,8 @@ public static class LugarTipos
         "Pub",
         "Lounge",
         "Casa de shows",
+        "Karaokê",
+        "Parque",
         "Outro",
     };
 }

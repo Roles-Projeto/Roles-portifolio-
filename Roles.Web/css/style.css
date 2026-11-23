@@ -553,11 +553,12 @@ button.nav-link {
 
 .cidade-op.ativo {
   font-weight: 600;
-  @media (max-width: 640px) {
+}
+
+@media (max-width: 640px) {
   .so-desktop {
     display: none;
   }
-}
 }
 
 .nav-texto.ativo {

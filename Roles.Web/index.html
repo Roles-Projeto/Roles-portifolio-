@@ -24,8 +24,19 @@
           <div class="busca-hero" role="search">
             <label class="so-leitor" for="busca">Buscar eventos</label>
             <input id="busca" type="search" placeholder="Busque por evento ou local" autocomplete="off">
+
+            <div class="cidade busca-cidade" id="hero-cidade">
+              <button type="button" class="cidade-botao" id="hero-cidade-botao" aria-haspopup="listbox" aria-expanded="false">
+                <span id="hero-cidade-texto">Todas as cidades</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
+              <ul class="cidade-lista" id="hero-cidade-lista" role="listbox" hidden></ul>
+            </div>
+
             <a class="botao" href="#eventos">Buscar</a>
           </div>
+
+          <div id="atalhos" class="atalhos" hidden></div>
 
           <div id="numeros" class="numeros" hidden></div>
         </div>
@@ -37,7 +48,10 @@
     <section class="secao" id="eventos">
       <div class="secao-topo">
         <h2>Próximos eventos</h2>
-        <p id="status" class="status" aria-live="polite">Carregando eventos...</p>
+        <div class="secao-dir">
+          <p id="status" class="status" aria-live="polite">Carregando eventos...</p>
+          <a class="ver-todos" href="eventos.html">Ver todos os eventos →</a>
+        </div>
       </div>
 
       <div class="filtros" aria-label="Filtros">
@@ -55,7 +69,7 @@
       </div>
 
       <div id="acoes" class="acoes-status"></div>
-      <ul id="lista" class="ev-grade"></ul>
+      <ul id="lista" class="ev-grade" data-limite="8"></ul>
     </section>
 
     <section class="secao" id="lugares" hidden>
@@ -64,6 +78,7 @@
         <a class="ver-todos" href="lugares.html">Ver todos os lugares →</a>
       </div>
       <p class="secao-sub">Bares, restaurantes, karaokês e parques para curtir na cidade.</p>
+      <div id="lugares-abas" class="abas" aria-label="Tipos de lugar"></div>
       <ul id="lugares-lista" class="ev-grade lg-grade"></ul>
     </section>
 

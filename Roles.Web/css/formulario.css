@@ -238,3 +238,96 @@ legend {
   font-size: 0.85rem;
   color: var(--muted);
 }
+
+
+/* Seletores e dica */
+.campo-form select {
+  padding: 11px 12px;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.campo-form select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-color: transparent;
+}
+
+.dica {
+  margin: 12px 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* Horários do lugar */
+.horario-cab,
+.horario-linha {
+  display: grid;
+  grid-template-columns: 130px 1fr 1fr 100px;
+  gap: 12px;
+  align-items: center;
+}
+
+.horario-cab {
+  padding-bottom: 6px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.horario-linha {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.horario-dia {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.horario-linha input[type="time"] {
+  width: 100%;
+  padding: 9px 10px;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.horario-linha input[type="time"]:disabled {
+  background: #f6f5f8;
+  opacity: 0.6;
+}
+
+.fechado-opcao {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+#copiar-horario {
+  margin-top: 16px;
+}
+
+@media (max-width: 600px) {
+  .horario-cab {
+    display: none;
+  }
+
+  .horario-linha {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .horario-dia,
+  .fechado-opcao {
+    grid-column: 1 / -1;
+  }
+}

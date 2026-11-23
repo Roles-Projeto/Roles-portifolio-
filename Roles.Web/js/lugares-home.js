@@ -1,11 +1,15 @@
-import { listarLugaresDaHome } from "./api.js";
+import { listarLugares as listarLugaresDaHome } from "./api.js";
 import { escapar } from "./util.js";
 
 const elSecao = document.getElementById("lugares");
+const elAbas = document.getElementById("lugares-abas");
 const elLista = document.getElementById("lugares-lista");
 
 // Quantos lugares aparecem na home.
 const LIMITE = 4;
+
+let todos = [];
+let tipoAtivo = "";
 
 const ICONE_RELOGIO = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>`;
 const ICONE_LOCAL = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>`;
@@ -54,17 +58,36 @@ function situacao(horarios, agora = new Date()) {
   return { aberto: false, texto: "Fechado por hoje" };
 }
 
-// Faixa de preço: aceita número (1 a 3) ou texto pronto ("$$").
-function htmlPreco(faixa) {
-  if (faixa === null || faixa === undefined || faixa === "") return "";
+// "Bar" -> "Bares", "Parque" -> "Parques", "Casa de shows" continua igual
+function pluralTipo(tipo) {
+  if (/s$/i.test(tipo)) return tipo;
+  return /r$/i.test(tipo) ? `${tipo}es` : `${tipo}s`;
+}
 
-  const numero = Number(faixa);
-  if (Number.isInteger(numero)) {
-    if (numero <= 0) return `<span class="lg-preco gratis">Grátis</span>`;
-    return `<span class="lg-preco">${"$".repeat(Math.min(numero, 4))}</span>`;
-  }
+// Abre o endereço do lugar no Google Maps. Sem endereço, não há link.
+function linkMapa(l) {
+  const partes = [l.rua, l.bairro, l.cidade, l.estado].filter(Boolean);
+  if (partes.length === 0) return "";
 
-  return `<span class="lg-preco">${escapar(faixa)}</span>`;
+  const consulta = encodeURIComponent([l.nome, ...partes].join(", "));
+  return `https://www.google.com/maps/search/?api=1&query=${consulta}`;
+}
+
+function linkInstagram(l) {
+  const usuario = String(l.instagram ?? "").trim().replace(/^@/, "");
+  return usuario ? `https://www.instagram.com/${encodeURIComponent(usuario)}/` : "";
+}
+
+function htmlAcoes(l) {
+  const mapa = linkMapa(l);
+  const insta = linkInstagram(l);
+
+  const itens = [
+    mapa ? `<a class="lg-acao" href="${escapar(mapa)}" target="_blank" rel="noopener noreferrer">Como chegar</a>` : "",
+    insta ? `<a class="lg-acao" href="${escapar(insta)}" target="_blank" rel="noopener noreferrer">Instagram</a>` : "",
+  ].filter(Boolean);
+
+  return itens.length > 0 ? `<div class="lg-acoes">${itens.join("")}</div>` : "";
 }
 
 function htmlCard(l) {
@@ -88,31 +111,67 @@ function htmlCard(l) {
     : "";
 
   return `
-    <li class="ev-card">
-      <a href="lugar.html?id=${Number(l.id)}">
+    <li class="lg-card">
+      <a class="lg-link" href="lugar.html?id=${Number(l.id)}">
         <div class="ev-capa tom-${tom}">
           ${capa}
           ${status}
           ${tag}
         </div>
         <div class="ev-corpo">
-          <div class="lg-titulo">
-            <h3>${escapar(l.nome)}</h3>
-            ${htmlPreco(l.faixaPreco)}
-          </div>
+          <h3>${escapar(l.nome)}</h3>
           ${linhaLocal}
           ${linhaHorario}
         </div>
       </a>
+      ${htmlAcoes(l)}
     </li>`;
 }
+
+function tiposDisponiveis() {
+  const tipos = todos.map((l) => l.tipo).filter(Boolean);
+  return [...new Set(tipos)].sort((a, b) => a.localeCompare(b, "pt-BR"));
+}
+
+function montarAbas() {
+  const tipos = tiposDisponiveis();
+
+  // Com um tipo só, as abas não ajudam em nada.
+  if (tipos.length < 2) {
+    elAbas.hidden = true;
+    return;
+  }
+
+  const botoes = tipos
+    .map((t) => `<button type="button" class="aba${t === tipoAtivo ? " ativo" : ""}" data-tipo="${escapar(t)}">${escapar(pluralTipo(t))}</button>`)
+    .join("");
+
+  elAbas.innerHTML = `<button type="button" class="aba${tipoAtivo === "" ? " ativo" : ""}" data-tipo="">Todos</button>${botoes}`;
+  elAbas.hidden = false;
+}
+
+function mostrar() {
+  const filtrados = tipoAtivo ? todos.filter((l) => l.tipo === tipoAtivo) : todos;
+  elLista.innerHTML = filtrados.slice(0, LIMITE).map(htmlCard).join("");
+}
+
+elAbas.addEventListener("click", (evento) => {
+  const aba = evento.target.closest("[data-tipo]");
+  if (!aba) return;
+
+  tipoAtivo = aba.dataset.tipo;
+  montarAbas();
+  mostrar();
+});
 
 async function iniciar() {
   try {
     const lugares = await listarLugaresDaHome();
     if (!Array.isArray(lugares) || lugares.length === 0) return;
 
-    elLista.innerHTML = lugares.slice(0, LIMITE).map(htmlCard).join("");
+    todos = lugares;
+    montarAbas();
+    mostrar();
     elSecao.hidden = false;
   } catch (erro) {
     // Se falhar, a seção simplesmente não aparece e o resto da home segue normal.
