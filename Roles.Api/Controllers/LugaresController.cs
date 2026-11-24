@@ -188,4 +188,28 @@ public class LugaresController : ControllerBase
     // A coluna é "timestamp without time zone"; o Npgsql recusa DateTime com Kind=Utc nela.
     private static DateTime SemFuso(DateTime data) =>
         DateTime.SpecifyKind(data, DateTimeKind.Unspecified);
+
+
+        // GET api/lugares/meus  (só os lugares da pessoa logada)
+    [Authorize]
+    [HttpGet("meus")]
+    public async Task<ActionResult<List<Lugar>>> GetMeus()
+    {
+        var usuarioId = UsuarioLogadoId();
+        if (usuarioId is null)
+            return Unauthorized(new { mensagem = "Faça login para ver seus lugares." });
+
+        var lugares = await _db.Lugares
+            .AsNoTracking()
+            .Include(l => l.Horarios)
+            .Where(l => l.UsuarioId == usuarioId)
+            .OrderBy(l => l.Nome)
+            .ToListAsync();
+
+        foreach (var lugar in lugares)
+            lugar.Horarios = lugar.Horarios.OrderBy(h => h.DiaSemana).ToList();
+
+        return Ok(lugares);
+    }
 }
+

@@ -669,3 +669,45 @@ body:has(.cad) {
 .pv-corpo .vazio {
   background: var(--cad-tint);
 }
+
+/* ---------- Linha de ingresso: cabe na coluna do formulário ---------- */
+.cad .ingresso-linha {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px 16px;
+  align-items: end;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Título ocupa a linha inteira; Tipo, Valor e Quantidade ficam lado a lado */
+.cad .ingresso-linha .campo-form {
+  min-width: 0;
+}
+
+.cad .ingresso-linha .campo-form:first-child {
+  grid-column: 1 / -1;
+}
+
+.cad .ingresso-linha input,
+.cad .ingresso-linha select {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* Botão × e, na edição, o "Salvar ingresso" ocupam a linha toda */
+.cad .ingresso-linha .remover {
+  grid-column: 1 / -1;
+  justify-self: end;
+}
+
+.cad .ingresso-linha .ingresso-acoes {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 600px) {
+  .cad .ingresso-linha {
+    grid-template-columns: 1fr 1fr;
+  }
+}

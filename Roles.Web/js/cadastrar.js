@@ -863,9 +863,66 @@ async function iniciarEdicao() {
   }
 }
 
+/* ---------- CEP (preenche o endereço pelo ViaCEP) ---------- */
+
+function avisoCep(input, textoAviso, ehErro = false) {
+  const rotulo = input.closest(".cad-campo");
+  let el = rotulo.querySelector("[data-cep-aviso]");
+  if (!el) {
+    el = document.createElement("small");
+    el.className = "cad-dica";
+    el.dataset.cepAviso = "";
+    rotulo.appendChild(el);
+  }
+  el.textContent = textoAviso;
+  el.classList.toggle("erro", ehErro);
+}
+
+async function buscarCep(input) {
+  // Deixa o CEP no formato 00000-000 enquanto a pessoa digita.
+  const digitos = input.value.replace(/\D/g, "").slice(0, 8);
+  input.value = digitos.length > 5 ? `${digitos.slice(0, 5)}-${digitos.slice(5)}` : digitos;
+
+  if (digitos.length < 8) {
+    avisoCep(input, "");
+    return;
+  }
+
+  avisoCep(input, "Buscando endereço...");
+
+  try {
+    const resposta = await fetch(`https://viacep.com.br/ws/${digitos}/json/`);
+    if (!resposta.ok) throw new Error(`ViaCEP respondeu ${resposta.status}`);
+    const dados = await resposta.json();
+
+    // A pessoa já mudou o CEP enquanto a busca andava: descarta o resultado.
+    if (input.value.replace(/\D/g, "") !== digitos) return;
+
+    if (dados.erro) {
+      avisoCep(input, "CEP não encontrado. Preencha o endereço à mão.", true);
+      return;
+    }
+
+    if (dados.logradouro) definirCampo("rua", dados.logradouro);
+    if (dados.bairro) definirCampo("bairro", dados.bairro); // só existe no lugar
+    definirCampo("cidade", dados.localidade);
+    definirCampo("estado", dados.uf);
+
+    avisoCep(input, "Endereço preenchido. Complete com o número.");
+    atualizarPrevia();
+    campo("rua")?.focus();
+  } catch (erro) {
+    console.error(erro);
+    avisoCep(input, "Não foi possível buscar o CEP agora. Preencha o endereço à mão.", true);
+  }
+}
+
 /* ---------- eventos da tela ---------- */
 
-form.addEventListener("input", atualizarPrevia);
+form.addEventListener("input", (evento) => {
+  if (evento.target.name === "cep") buscarCep(evento.target);
+  atualizarPrevia();
+});
 form.addEventListener("change", atualizarPrevia);
 
 elOpcoes.addEventListener("click", (evento) => {
