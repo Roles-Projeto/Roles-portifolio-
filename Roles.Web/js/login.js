@@ -5,6 +5,9 @@ import { escapar, mensagemDoErro } from "./util.js";
 const form = document.getElementById("form-login");
 const elErros = document.getElementById("erros");
 const botao = document.getElementById("botao-entrar");
+const campoSenha = document.getElementById("senha");
+const botaoMostrar = document.getElementById("mostrar-senha");
+const botaoGoogle = document.getElementById("botao-google");
 
 // Quem já está logada não precisa ver esta tela.
 if (estaLogada()) {
@@ -15,6 +18,19 @@ function mostrarErros(mensagens) {
   elErros.innerHTML = `<ul>${mensagens.map((m) => `<li>${escapar(m)}</li>`).join("")}</ul>`;
   elErros.hidden = false;
 }
+
+// Botão "Mostrar" / "Ocultar" ao lado do campo de senha.
+botaoMostrar.addEventListener("click", () => {
+  const estavaVisivel = campoSenha.type === "text";
+  campoSenha.type = estavaVisivel ? "password" : "text";
+  botaoMostrar.textContent = estavaVisivel ? "Mostrar" : "Ocultar";
+  botaoMostrar.setAttribute("aria-label", estavaVisivel ? "Mostrar senha" : "Ocultar senha");
+});
+
+// O login com o Google ainda não está ligado: por enquanto só avisa.
+botaoGoogle.addEventListener("click", () => {
+  mostrarErros(["O login com o Google ainda não está disponível. Use seu e-mail e sua senha."]);
+});
 
 form.addEventListener("submit", async (evento) => {
   evento.preventDefault();

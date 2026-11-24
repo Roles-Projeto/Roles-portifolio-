@@ -1,0 +1,377 @@
+/* Telas de login e cadastro (login.html e cadastro.html).
+   Só define classes que começam com "auth-", então o resto do site não muda.
+   O cabeçalho e o rodapé continuam os do site; a fonte Inter vale só na área da tela. */
+
+.auth-pagina {
+  --auth-borda: #8f8ba3;
+  --auth-muted: #5f5b70;
+  display: grid;
+  grid-template-columns: 65fr 53fr;
+  min-height: 600px;
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* Painel escuro da esquerda: logo em cima, texto no meio, card embaixo */
+.auth-painel {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 32px;
+  padding: 40px 48px;
+  color: #fff;
+  background:
+    radial-gradient(520px 360px at 85% 8%, rgba(109, 40, 217, 0.45), transparent 70%),
+    radial-gradient(420px 320px at 0% 100%, rgba(219, 39, 119, 0.28), transparent 70%),
+    #14131c;
+}
+
+.auth-logo {
+  align-self: flex-start;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #fff;
+}
+
+.auth-logo span {
+  color: #8b5cf6;
+}
+
+.auth-painel-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.auth-destaque {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+}
+
+.auth-apoio {
+  max-width: 380px;
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #d4d0e2;
+}
+
+.auth-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.auth-lista li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1rem;
+  color: #ece9f6;
+}
+
+.auth-lista svg {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  color: #c4b5fd;
+}
+
+/* Card de exemplo (só decoração) */
+.auth-card {
+  width: 260px;
+  overflow: hidden;
+  color: #14131c;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 24px 48px -24px rgba(0, 0, 0, 0.6);
+}
+
+.auth-card-capa {
+  position: relative;
+  height: 100px;
+  background: linear-gradient(135deg, #6d28d9, #db2777);
+}
+
+.auth-card-data {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 5px 8px;
+  text-align: center;
+  line-height: 1;
+  background: #fff;
+  border-radius: 8px;
+}
+
+.auth-card-data strong {
+  display: block;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.auth-card-data small {
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--auth-muted);
+}
+
+.auth-card-corpo {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 12px 14px 14px;
+}
+
+.auth-card-tag {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: #6d28d9;
+}
+
+.auth-card-nome {
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.auth-card-local {
+  font-size: 0.75rem;
+  color: var(--auth-muted);
+}
+
+/* Área do formulário */
+.auth-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: #14131c;
+  background: #fff;
+}
+
+.auth-bloco {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  width: 100%;
+  max-width: 360px;
+}
+
+.auth-cab {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.auth-cab h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+}
+
+.auth-cab p {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--auth-muted);
+}
+
+/* Botão do Google e divisor */
+.auth-google {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 46px;
+  padding: 0 16px;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #14131c;
+  background: #fff;
+  border: 1px solid var(--auth-borda);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.auth-google:hover {
+  background: var(--surface);
+}
+
+.auth-google svg {
+  flex: none;
+  width: 18px;
+  height: 18px;
+}
+
+.auth-divisor {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.75rem;
+  color: var(--auth-muted);
+}
+
+.auth-divisor::before,
+.auth-divisor::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #e4e1ec;
+}
+
+/* Formulário */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.auth-form .erros {
+  margin: 0;
+}
+
+.auth-campos {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.auth-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.auth-campo label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #14131c;
+}
+
+.auth-campo input {
+  width: 100%;
+  height: 46px;
+  padding: 0 14px;
+  font: inherit;
+  font-size: 0.875rem;
+  color: #14131c;
+  background: #fff;
+  border: 1px solid var(--auth-borda);
+  border-radius: 10px;
+}
+
+.auth-campo input:focus {
+  outline: none;
+  border-color: #6d28d9;
+  box-shadow: 0 0 0 3px #f3ecff;
+}
+
+/* Senha com botão Mostrar / Ocultar */
+.auth-senha {
+  position: relative;
+}
+
+.auth-senha input {
+  padding-right: 76px;
+}
+
+.auth-mostrar {
+  position: absolute;
+  top: 5px;
+  right: 6px;
+  height: 34px;
+  padding: 0 10px;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #5b21b6;
+  background: none;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.auth-mostrar:hover {
+  background: var(--surface);
+}
+
+/* Indicador de força da senha (usado no cadastro) */
+.auth-forca {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.auth-forca span {
+  flex: 1;
+  height: 4px;
+  background: #e4e1ec;
+  border-radius: 2px;
+}
+
+.auth-forca span.on {
+  background: #6d28d9;
+}
+
+.auth-forca small {
+  flex: none;
+  margin-left: 6px;
+  font-size: 0.75rem;
+  color: var(--auth-muted);
+}
+
+.botao-auth {
+  width: 100%;
+  height: 48px;
+  padding: 0 24px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  background: #14131c;
+}
+
+.botao-auth:hover {
+  background: #6d28d9;
+}
+
+.auth-troca {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--auth-muted);
+  text-align: center;
+}
+
+.auth-troca a {
+  font-weight: 700;
+  color: #5b21b6;
+}
+
+.auth-troca a:hover {
+  color: #14131c;
+}
+
+/* Telas menores: some o painel e fica só o formulário */
+@media (max-width: 900px) {
+  .auth-pagina {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+  }
+
+  .auth-painel {
+    display: none;
+  }
+
+  .auth-area {
+    padding: 32px 16px 48px;
+  }
+}

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Minha conta · Rolês</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/conta.css">
+</head>
+<body>
+  <header class="topo">
+    <a class="logo" href="index.html">Rolês<span class="ponto">.</span></a>
+    <nav id="menu" class="menu"></nav>
+  </header>
+
+  <div class="conta">
+    <aside>
+      <div class="cc-quem">
+        <span id="cc-avatar" class="cc-avatar"></span>
+        <div>
+          <strong id="cc-nome"></strong>
+          <span id="cc-email" class="cc-email"></span>
+        </div>
+      </div>
+
+      <nav class="cc-menu" aria-label="Minha conta">
+        <div class="cc-grupo">Como participante</div>
+        <a class="cc-link" href="#ingressos" data-secao="ingressos">Meus ingressos</a>
+
+        <div class="cc-grupo">Como organizadora</div>
+        <a class="cc-link" href="#eventos" data-secao="eventos">Meus eventos</a>
+        <a class="cc-link" href="#lugares" data-secao="lugares">Meus lugares</a>
+
+        <div class="cc-grupo">Conta</div>
+        <a class="cc-link" href="#dados" data-secao="dados">Dados da conta</a>
+      </nav>
+
+      <button id="cc-sair" class="cc-sair" type="button">Sair da conta</button>
+    </aside>
+
+    <main>
+      <section id="sec-ingressos" hidden>
+        <h1 class="cc-titulo">Meus ingressos</h1>
+        <p class="cc-apoio">Os ingressos que você comprar aparecem aqui.</p>
+        <div class="cc-vazio">
+          <p>A compra de ingressos ainda não está disponível.</p>
+          <p><a class="cc-acao" href="eventos.html">Ver eventos</a></p>
+        </div>
+      </section>
+
+      <section id="sec-eventos" hidden>
+        <h1 class="cc-titulo">Meus eventos</h1>
+        <p id="resumo" class="cc-apoio">Carregando...</p>
+        <div class="cc-cab">
+          <h2>Eventos publicados</h2>
+          <a class="cc-acao" href="cadastrar.html?tipo=evento">Cadastrar novo evento</a>
+        </div>
+        <div id="status-eventos" class="cc-vazio" hidden></div>
+        <ul id="lista-eventos" class="cc-lista"></ul>
+      </section>
+
+      <section id="sec-lugares" hidden>
+        <h1 class="cc-titulo">Meus lugares</h1>
+        <p id="resumo-lugares" class="cc-apoio">Carregando...</p>
+        <div class="cc-cab">
+          <h2>Lugares cadastrados</h2>
+          <a class="cc-acao" href="cadastrar.html?tipo=lugar">Cadastrar novo lugar</a>
+        </div>
+        <div id="status-lugares" class="cc-vazio" hidden></div>
+        <ul id="lista-lugares" class="cc-lista"></ul>
+      </section>
+
+      <section id="sec-dados" hidden>
+        <h1 class="cc-titulo">Dados da conta</h1>
+        <p class="cc-apoio">As informações do seu cadastro.</p>
+        <dl class="cc-dados">
+          <div><dt>Nome</dt><dd id="dado-nome"></dd></div>
+          <div><dt>E-mail</dt><dd id="dado-email"></dd></div>
+        </dl>
+        <div class="cc-vazio">
+          <p>Alterar nome, e-mail ou senha ainda não está disponível.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="js/menu.js"></script>
+  <script type="module" src="js/conta.js"></script>
+</body>
+</html>

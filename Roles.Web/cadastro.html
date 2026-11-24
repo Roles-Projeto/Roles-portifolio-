@@ -4,8 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Criar conta · Rolês</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/formulario.css">
+  <link rel="stylesheet" href="css/auth.css">
 </head>
 <body>
   <header class="topo">
@@ -13,36 +15,90 @@
     <nav id="menu" class="menu"></nav>
   </header>
 
-  <main class="conteudo estreito">
-    <h1 class="titulo">Criar conta</h1>
+  <main class="auth-pagina">
+    <aside class="auth-painel">
+      <a class="auth-logo" href="index.html">Rolês<span>.</span></a>
 
-    <form id="form-cadastro" class="form-auth" novalidate>
-      <label class="campo-form">
-        <span>Nome</span>
-        <input type="text" name="nome" required minlength="2" maxlength="100" autocomplete="name">
-      </label>
+      <div class="auth-painel-texto">
+        <p class="auth-destaque">Divulgue seu evento ou lugar para quem procura o que fazer.</p>
+        <ul class="auth-lista">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 12.5l3 3 5-6"/></svg>
+            Cadastre eventos e lugares em poucos passos
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 12.5l3 3 5-6"/></svg>
+            Crie vários tipos de ingresso para cada evento
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 12.5l3 3 5-6"/></svg>
+            Edite tudo depois, quando quiser
+          </li>
+        </ul>
+      </div>
 
-      <label class="campo-form">
-        <span>E-mail</span>
-        <input type="email" name="email" required maxlength="200" autocomplete="email">
-      </label>
+      <p class="auth-painel-nota">Descubra o que fazer em Goiânia e região.</p>
+    </aside>
 
-      <label class="campo-form">
-        <span>Senha (mínimo de 8 caracteres)</span>
-        <input type="password" name="senha" required minlength="8" maxlength="72" autocomplete="new-password">
-      </label>
+    <section class="auth-area">
+      <div class="auth-bloco">
+        <div class="auth-cab">
+          <h1>Criar conta</h1>
+          <p>Leva menos de um minuto. Todos os campos são obrigatórios.</p>
+        </div>
 
-      <label class="campo-form">
-        <span>Confirmar senha</span>
-        <input type="password" name="confirmar" required minlength="8" maxlength="72" autocomplete="new-password">
-      </label>
+        <button id="botao-google" class="auth-google" type="button">
+          <svg viewBox="0 0 48 48" aria-hidden="true">
+            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+          </svg>
+          Continuar com o Google
+        </button>
 
-      <div id="erros" class="erros" role="alert" hidden></div>
+        <div class="auth-divisor">ou cadastre com e-mail</div>
 
-      <button id="botao-cadastrar" class="botao" type="submit">Criar conta</button>
+        <form id="form-cadastro" class="auth-form" novalidate>
+          <div class="auth-campos">
+            <div class="auth-campo">
+              <label for="nome">Nome</label>
+              <input id="nome" type="text" name="nome" required minlength="2" maxlength="100" autocomplete="name" placeholder="Como você quer ser chamada" autofocus>
+            </div>
 
-      <p class="alternativa">Já tem conta? <a href="login.html">Entrar</a></p>
-    </form>
+            <div class="auth-campo">
+              <label for="email">E-mail</label>
+              <input id="email" type="email" name="email" required maxlength="200" autocomplete="email" placeholder="voce@email.com">
+            </div>
+
+            <div class="auth-campo">
+              <label for="senha">Senha</label>
+              <div class="auth-senha">
+                <input id="senha" type="password" name="senha" required minlength="8" maxlength="72" autocomplete="new-password">
+                <button id="mostrar-senha" class="auth-mostrar" type="button" aria-label="Mostrar senhas">Mostrar</button>
+              </div>
+              <div class="auth-forca" aria-hidden="true">
+                <span id="forca-1"></span>
+                <span id="forca-2"></span>
+                <span id="forca-3"></span>
+                <small id="forca-texto">Mínimo de 8 caracteres</small>
+              </div>
+            </div>
+
+            <div class="auth-campo">
+              <label for="confirmar">Confirmar senha</label>
+              <input id="confirmar" type="password" name="confirmar" required minlength="8" maxlength="72" autocomplete="new-password">
+            </div>
+          </div>
+
+          <div id="erros" class="erros" role="alert" hidden></div>
+
+          <button id="botao-cadastrar" class="botao botao-auth" type="submit">Criar conta</button>
+        </form>
+
+        <p class="auth-troca">Já tem conta? <a href="login.html">Entrar</a></p>
+      </div>
+    </section>
   </main>
 
   <script type="module" src="js/menu.js"></script>

@@ -6,6 +6,7 @@ const nav = document.getElementById("menu");
 const ICONE_SETA = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>`;
 const ICONE_MAIS = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>`;
 const ICONE_LOCAL = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>`;
+const ICONE_USUARIO = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>`;
 const ICONE_SAIR = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>`;
 
 function primeiroNome(nome) {
@@ -14,9 +15,11 @@ function primeiroNome(nome) {
 
 function renderizarMenu() {
   const pagina = window.location.pathname.split("/").pop();
-  const emLugares = ["lugares.html", "lugar.html", "meus-lugares.html", "criar-lugar.html"].includes(pagina);
+  const emLugares = ["lugares.html", "lugar.html", "criar-lugar.html"].includes(pagina);
+  // Na página de conta nenhum dos dois links do topo fica marcado.
+  const emConta = pagina === "conta.html";
   const eventos = `
-    <a class="nav-texto${emLugares ? "" : " ativo"}" href="index.html">Eventos</a>
+    <a class="nav-texto${emLugares || emConta ? "" : " ativo"}" href="index.html">Eventos</a>
     <a class="nav-texto${emLugares ? " ativo" : ""}" href="lugares.html">Lugares</a>`;
 
   if (!estaLogada()) {
@@ -39,9 +42,10 @@ function renderizarMenu() {
       </button>
       <div class="perfil-menu" id="perfil-menu" hidden>
         <div class="perfil-cab"><strong>${escapar(nome)}</strong><span>Sua conta</span></div>
+        <a class="perfil-item" href="conta.html">${ICONE_USUARIO}Minha conta</a>
         <a class="perfil-item" href="criar-evento.html">${ICONE_MAIS}Criar evento</a>
         <a class="perfil-item" href="criar-lugar.html">${ICONE_MAIS}Cadastrar lugar</a>
-        <a class="perfil-item" href="meus-lugares.html">${ICONE_LOCAL}Meus lugares</a>
+        <a class="perfil-item" href="conta.html#lugares">${ICONE_LOCAL}Meus lugares</a>
         <div class="perfil-sep"></div>
         <button type="button" class="perfil-item sair" id="botao-sair">${ICONE_SAIR}Sair</button>
       </div>
