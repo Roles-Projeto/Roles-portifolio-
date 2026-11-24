@@ -151,6 +151,10 @@ public class EventosController : ControllerBase
             return StatusCode(StatusCodes.Status403Forbidden,
                 new { mensagem = "Só quem criou o evento pode apagá-lo." });
 
+        // Evento com ingresso vendido fica registrado: quem comprou precisa dele.
+        if (await _db.Pedidos.AnyAsync(p => p.EventoId == id))
+            return Conflict(new { mensagem = "Este evento já tem ingressos vendidos e não pode ser apagado." });
+
         _db.Eventos.Remove(evento);
         await _db.SaveChangesAsync();
 

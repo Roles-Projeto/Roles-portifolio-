@@ -285,3 +285,49 @@
     justify-content: flex-end;
   }
 }
+
+.cc-bloco {
+  margin-top: 36px;
+}
+
+.cc-linha.com-codigos {
+  flex-wrap: wrap;
+}
+
+.cc-chip {
+  font-size: 13px;
+  color: #5f5f6b;
+}
+
+.cc-botoes button.cc-neutro {
+  color: #5b21b6;
+}
+
+.cc-linha.passado .cc-data {
+  background: #f1f1f4;
+  color: #5f5f6b;
+}
+
+.cc-codigos {
+  flex-basis: 100%;
+  padding-top: 12px;
+  border-top: 1px solid #ececf1;
+}
+
+.cc-codigos ul {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+}
+
+.cc-codigos code {
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: #f3f0fb;
+  color: #3b1a7a;
+  font-weight: 600;
+}

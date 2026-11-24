@@ -12,6 +12,8 @@ public class AppDbContext : DbContext
     public DbSet<Usuario> Usuarios => Set<Usuario>();
     public DbSet<Lugar> Lugares => Set<Lugar>();
     public DbSet<LugarHorario> LugarHorarios => Set<LugarHorario>();
+    public DbSet<Pedido> Pedidos => Set<Pedido>();
+    public DbSet<IngressoComprado> IngressosComprados => Set<IngressoComprado>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -121,6 +123,51 @@ public class AppDbContext : DbContext
             h.Property(x => x.Fechado).HasColumnName("fechado");
             h.Property(x => x.Abre).HasColumnName("abre");
             h.Property(x => x.Fecha).HasColumnName("fecha");
+        });
+
+        modelBuilder.Entity<Pedido>(p =>
+        {
+            p.ToTable("pedidos");
+            p.HasKey(x => x.Id);
+            p.Property(x => x.Id).HasColumnName("id");
+            p.Property(x => x.UsuarioId).HasColumnName("usuario_id");
+            p.Property(x => x.EventoId).HasColumnName("evento_id");
+            p.Property(x => x.Total).HasColumnName("total").HasColumnType("numeric(10,2)");
+            p.Property(x => x.Status).HasColumnName("status");
+            p.Property(x => x.CriadoEm).HasColumnName("criado_em").HasColumnType("timestamp without time zone");
+
+            // Quem já comprou não some: não dá para apagar usuário ou evento que tenha pedido.
+            p.HasOne<Usuario>()
+                .WithMany()
+                .HasForeignKey(x => x.UsuarioId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            p.HasOne<Evento>()
+                .WithMany()
+                .HasForeignKey(x => x.EventoId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<IngressoComprado>(c =>
+        {
+            c.ToTable("ingressos_comprados");
+            c.HasKey(x => x.Id);
+            c.Property(x => x.Id).HasColumnName("id");
+            c.Property(x => x.PedidoId).HasColumnName("pedido_id");
+            c.Property(x => x.IngressoId).HasColumnName("ingresso_id");
+            c.Property(x => x.Codigo).HasColumnName("codigo");
+            c.Property(x => x.ValorPago).HasColumnName("valor_pago").HasColumnType("numeric(10,2)");
+
+            // Apagar o pedido apaga os ingressos dele; o tipo de ingresso não pode sumir se já foi vendido.
+            c.HasOne<Pedido>()
+                .WithMany()
+                .HasForeignKey(x => x.PedidoId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            c.HasOne<Ingresso>()
+                .WithMany()
+                .HasForeignKey(x => x.IngressoId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

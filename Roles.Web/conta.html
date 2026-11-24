@@ -41,10 +41,17 @@
     <main>
       <section id="sec-ingressos" hidden>
         <h1 class="cc-titulo">Meus ingressos</h1>
-        <p class="cc-apoio">Os ingressos que você comprar aparecem aqui.</p>
-        <div class="cc-vazio">
-          <p>A compra de ingressos ainda não está disponível.</p>
-          <p><a class="cc-acao" href="eventos.html">Ver eventos</a></p>
+        <p id="resumo-ingressos" class="cc-apoio">Carregando...</p>
+        <div id="status-ingressos" class="cc-vazio" hidden></div>
+
+        <div id="bloco-proximos" hidden>
+          <div class="cc-cab"><h2>Próximos</h2></div>
+          <ul id="lista-proximos" class="cc-lista"></ul>
+        </div>
+
+        <div id="bloco-passados" class="cc-bloco" hidden>
+          <div class="cc-cab"><h2>Já realizados</h2></div>
+          <ul id="lista-passados" class="cc-lista"></ul>
         </div>
       </section>
 

@@ -35,9 +35,20 @@ public class IngressosController : ControllerBase
         return null;
     }
 
+    // Quantos ingressos deste tipo já foram vendidos (pedidos cancelados não contam).
+    private Task<int> ContarVendidos(int ingressoId)
+    {
+        return (
+            from c in _db.IngressosComprados
+            join p in _db.Pedidos on c.PedidoId equals p.Id
+            where c.IngressoId == ingressoId && p.Status != "cancelado"
+            select c.Id)
+            .CountAsync();
+    }
+
     // GET api/eventos/1/ingressos
     [HttpGet]
-    public async Task<ActionResult<List<Ingresso>>> GetByEvento(int eventoId)
+    public async Task<IActionResult> GetByEvento(int eventoId)
     {
         if (!await _db.Eventos.AnyAsync(e => e.Id == eventoId))
             return NotFound(new { mensagem = $"Evento {eventoId} não encontrado." });
@@ -49,7 +60,34 @@ public class IngressosController : ControllerBase
             .ThenBy(i => i.Id)
             .ToListAsync();
 
-        return Ok(ingressos);
+        var ids = ingressos.Select(i => i.Id).ToList();
+
+        var vendidos = await (
+            from c in _db.IngressosComprados
+            join p in _db.Pedidos on c.PedidoId equals p.Id
+            where ids.Contains(c.IngressoId) && p.Status != "cancelado"
+            group c by c.IngressoId into g
+            select new { IngressoId = g.Key, Quantidade = g.Count() })
+            .ToDictionaryAsync(x => x.IngressoId, x => x.Quantidade);
+
+        var resposta = ingressos.Select(i =>
+        {
+            var vendido = vendidos.GetValueOrDefault(i.Id);
+
+            return new
+            {
+                i.Id,
+                i.EventoId,
+                i.Titulo,
+                i.Tipo,
+                i.Valor,
+                i.QuantidadeTotal,
+                Vendidos = vendido,
+                Disponiveis = Math.Max(0, i.QuantidadeTotal - vendido)
+            };
+        });
+
+        return Ok(resposta);
     }
 
     // POST api/eventos/1/ingressos  (só a dona do evento)
@@ -114,6 +152,14 @@ public class IngressosController : ControllerBase
         if (erro is not null)
             return BadRequest(new { mensagem = erro });
 
+        // Não dá para reduzir a quantidade abaixo do que já foi vendido.
+        var vendidos = await ContarVendidos(id);
+        if (dto.QuantidadeTotal < vendidos)
+            return BadRequest(new
+            {
+                mensagem = $"Já foram vendidos {vendidos} ingressos deste tipo. A quantidade não pode ficar abaixo disso."
+            });
+
         ingresso.Titulo = dto.Titulo.Trim();
         ingresso.Tipo = dto.Tipo;
         ingresso.Valor = dto.Valor;
@@ -145,6 +191,10 @@ public class IngressosController : ControllerBase
 
         if (ingresso is null)
             return NotFound(new { mensagem = $"Ingresso {id} não encontrado neste evento." });
+
+        // Ingresso que já foi vendido (mesmo em pedido cancelado) fica registrado e não pode sumir.
+        if (await _db.IngressosComprados.AnyAsync(c => c.IngressoId == id))
+            return Conflict(new { mensagem = "Este ingresso já foi vendido e não pode ser apagado." });
 
         _db.Ingressos.Remove(ingresso);
         await _db.SaveChangesAsync();

@@ -307,3 +307,87 @@
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+
+.ingresso-acao {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ingresso-select {
+  padding: 8px 10px;
+  border: 1px solid #d9d9e0;
+  border-radius: 10px;
+  font: inherit;
+  background: #fff;
+}
+
+.ingresso .comprar:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+#resultado ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+
+#resultado.erro {
+  color: #a3302c;
+}
+
+.det-ingressos .ingressos {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.det-ingressos .ingresso {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-areas:
+    "nome preco acao"
+    "qtd  preco acao";
+  align-items: center;
+  column-gap: 28px;
+  row-gap: 2px;
+  min-height: 0;
+  padding: 18px 24px;
+  border-radius: 16px;
+}
+
+.det-ingressos .ingresso-nome {
+  grid-area: nome;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.det-ingressos .ingresso-qtd {
+  grid-area: qtd;
+  font-size: 14px;
+}
+
+.det-ingressos .ingresso .preco {
+  grid-area: preco;
+  margin: 0;
+  font-size: 20px;
+  white-space: nowrap;
+}
+
+.det-ingressos .ingresso-acao {
+  grid-area: acao;
+}
+
+@media (max-width: 640px) {
+  .det-ingressos .ingresso {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "nome"
+      "qtd"
+      "preco"
+      "acao";
+    row-gap: 8px;
+  }
+}

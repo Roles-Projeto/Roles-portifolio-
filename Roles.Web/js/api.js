@@ -142,3 +142,12 @@ export function listarLugaresDaHome() {
 export function listarMeusLugares() {
   return pedir("/lugares/meus");
 }
+
+// Compra: dados = { itens: [{ ingressoId, quantidade }] }
+export function criarPedido(eventoId, dados) {
+  return pedir(`/eventos/${eventoId}/pedidos`, enviarJson("POST", dados));
+}
+
+export function listarMeusPedidos() {
+  return pedir("/pedidos/meus");
+}

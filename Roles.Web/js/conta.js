@@ -1,4 +1,10 @@
-import { listarEventos, listarMeusLugares, apagarEvento, apagarLugar } from "./api.js";
+import {
+  listarEventos,
+  listarMeusLugares,
+  listarMeusPedidos,
+  apagarEvento,
+  apagarLugar,
+} from "./api.js";
 import { estaLogada, lerUsuario, lerToken, limparSessao } from "./auth.js";
 import { escapar } from "./util.js";
 
@@ -7,17 +13,24 @@ if (!estaLogada()) {
 }
 
 const SECOES = ["ingressos", "eventos", "lugares", "dados"];
-const SECAO_PADRAO = "eventos";
+const SECAO_PADRAO = "ingressos";
 
 const elResumo = document.getElementById("resumo");
 const elResumoLugares = document.getElementById("resumo-lugares");
+const elResumoIngressos = document.getElementById("resumo-ingressos");
 const elStatusEventos = document.getElementById("status-eventos");
 const elStatusLugares = document.getElementById("status-lugares");
+const elStatusIngressos = document.getElementById("status-ingressos");
 const elListaEventos = document.getElementById("lista-eventos");
 const elListaLugares = document.getElementById("lista-lugares");
+const elListaProximos = document.getElementById("lista-proximos");
+const elListaPassados = document.getElementById("lista-passados");
+const elBlocoProximos = document.getElementById("bloco-proximos");
+const elBlocoPassados = document.getElementById("bloco-passados");
 
 let meusEventos = [];
 let meusLugares = [];
+let meusPedidos = [];
 
 // ---------- Dados da pessoa logada ----------
 
@@ -92,6 +105,13 @@ function dataCompleta(valor) {
   return Number.isNaN(d.getTime()) ? "" : d.toLocaleDateString("pt-BR");
 }
 
+function horaCurta(valor) {
+  const d = new Date(valor);
+  return Number.isNaN(d.getTime())
+    ? ""
+    : d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+}
+
 function htmlEvento(e) {
   const nome = e.nome ?? e.titulo ?? "Evento sem nome";
   const { dia, mes } = blocoDeData(e.dataInicio);
@@ -127,6 +147,44 @@ function htmlLugar(l) {
         <a href="lugar.html?id=${Number(l.id)}">Ver</a>
         <a href="cadastrar.html?tipo=lugar&id=${Number(l.id)}">Editar</a>
         <button type="button" data-apagar-lugar="${Number(l.id)}">Apagar</button>
+      </div>
+    </li>`;
+}
+
+// "Pista, 2 ingressos; Camarote, 1 ingresso"
+function resumoDosIngressos(ingressos) {
+  const contagem = new Map();
+  for (const i of ingressos) {
+    contagem.set(i.titulo, (contagem.get(i.titulo) ?? 0) + 1);
+  }
+
+  return [...contagem]
+    .map(([titulo, n]) => `${titulo}, ${n} ${n === 1 ? "ingresso" : "ingressos"}`)
+    .join("; ");
+}
+
+function htmlPedido(p, passado) {
+  const e = p.evento;
+  const { dia, mes } = blocoDeData(e.dataInicio);
+  const detalhes = [e.cidade, horaCurta(e.dataInicio)].filter(Boolean).join(", ");
+
+  const codigos = p.ingressos
+    .map((i) => `<li><span>${escapar(i.titulo)}</span> <code>${escapar(i.codigo)}</code></li>`)
+    .join("");
+
+  return `
+    <li class="cc-linha com-codigos${passado ? " passado" : ""}">
+      <div class="cc-data"><b>${escapar(dia)}</b><small>${escapar(mes)}</small></div>
+      <div class="cc-info">
+        <h3><a href="evento.html?id=${Number(e.id)}">${escapar(e.nome)}</a></h3>
+        <p>${escapar(detalhes)}</p>
+      </div>
+      <div class="cc-botoes">
+        <span class="cc-chip">${escapar(resumoDosIngressos(p.ingressos))}</span>
+        <button type="button" class="cc-neutro" data-codigos="${Number(p.id)}" aria-expanded="false">Ver ingresso</button>
+      </div>
+      <div class="cc-codigos" id="codigos-${Number(p.id)}" hidden>
+        <ul>${codigos}</ul>
       </div>
     </li>`;
 }
@@ -170,6 +228,42 @@ function mostrarLugares() {
   elListaLugares.innerHTML = meusLugares.map(htmlLugar).join("");
 }
 
+function mostrarPedidos() {
+  const agora = Date.now();
+  const comEvento = meusPedidos.filter((p) => p.evento && p.ingressos.length > 0);
+
+  const proximos = comEvento
+    .filter((p) => new Date(p.evento.dataInicio).getTime() >= agora)
+    .sort((a, b) => new Date(a.evento.dataInicio) - new Date(b.evento.dataInicio));
+
+  const passados = comEvento
+    .filter((p) => new Date(p.evento.dataInicio).getTime() < agora)
+    .sort((a, b) => new Date(b.evento.dataInicio) - new Date(a.evento.dataInicio));
+
+  if (comEvento.length === 0) {
+    elResumoIngressos.textContent = "Os ingressos que você comprar aparecem aqui.";
+    elStatusIngressos.hidden = false;
+    elStatusIngressos.innerHTML = `<p>Você ainda não comprou nenhum ingresso.</p><p><a class="cc-acao" href="eventos.html">Ver eventos</a></p>`;
+    elBlocoProximos.hidden = true;
+    elBlocoPassados.hidden = true;
+    return;
+  }
+
+  const totalProximos = proximos.reduce((soma, p) => soma + p.ingressos.length, 0);
+  elResumoIngressos.textContent =
+    proximos.length === 0
+      ? "Você não tem eventos pela frente."
+      : `Você tem ${textoPlural(proximos.length, "evento pela frente", "eventos pela frente")}, com ${textoPlural(totalProximos, "ingresso", "ingressos")}.`;
+
+  elStatusIngressos.hidden = true;
+
+  elBlocoProximos.hidden = proximos.length === 0;
+  elListaProximos.innerHTML = proximos.map((p) => htmlPedido(p, false)).join("");
+
+  elBlocoPassados.hidden = passados.length === 0;
+  elListaPassados.innerHTML = passados.map((p) => htmlPedido(p, true)).join("");
+}
+
 function mostrarErro(elemento, mensagem) {
   elemento.hidden = false;
   elemento.innerHTML = `<p>${escapar(mensagem)}</p><p><button class="cc-acao" type="button" data-recarregar style="padding:0;border:0;background:none;font:inherit;cursor:pointer">Tentar de novo</button></p>`;
@@ -211,8 +305,24 @@ async function carregarLugares() {
   }
 }
 
+async function carregarPedidos() {
+  try {
+    const todos = await listarMeusPedidos();
+    meusPedidos = todos.filter((p) => p.status !== "cancelado");
+    mostrarPedidos();
+  } catch (erro) {
+    console.error(erro);
+    if (erro.sessaoExpirada) {
+      window.location.replace("login.html?voltar=conta.html");
+      return;
+    }
+    elResumoIngressos.textContent = "";
+    mostrarErro(elStatusIngressos, "Não foi possível carregar seus ingressos. A API está rodando?");
+  }
+}
+
 async function carregar() {
-  await Promise.all([carregarEventos(), carregarLugares()]);
+  await Promise.all([carregarPedidos(), carregarEventos(), carregarLugares()]);
   atualizarResumos();
 }
 
@@ -266,7 +376,19 @@ elListaLugares.addEventListener("click", async (evento) => {
 });
 
 document.addEventListener("click", (evento) => {
-  if (evento.target.closest("[data-recarregar]")) carregar();
+  if (evento.target.closest("[data-recarregar]")) {
+    carregar();
+    return;
+  }
+
+  // Mostra ou esconde os códigos dos ingressos de uma compra.
+  const botaoCodigos = evento.target.closest("[data-codigos]");
+  if (botaoCodigos) {
+    const painel = document.getElementById(`codigos-${botaoCodigos.dataset.codigos}`);
+    painel.hidden = !painel.hidden;
+    botaoCodigos.setAttribute("aria-expanded", String(!painel.hidden));
+    botaoCodigos.textContent = painel.hidden ? "Ver ingresso" : "Esconder";
+  }
 });
 
 document.getElementById("cc-sair").addEventListener("click", () => {
