@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cadastrar · Rolês</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/formulario.css">
+  <link rel="stylesheet" href="css/cadastrar.css">
+</head>
+<body>
+  <header class="topo">
+    <a class="logo" href="index.html">Rolês<span class="ponto">.</span></a>
+    <nav id="menu" class="menu"></nav>
+  </header>
+
+  <main class="cad">
+    <nav id="cad-rail" class="cad-rail" aria-label="Etapas"></nav>
+
+    <div class="cad-form">
+      <div class="cad-cab">
+        <h1 id="cad-titulo">O que você quer divulgar?</h1>
+        <p id="cad-sub"></p>
+      </div>
+
+      <form id="form-cadastro" novalidate>
+
+        <!-- ETAPA 1: comum aos dois -->
+        <fieldset class="etapa" data-modo="ambos" data-titulo="Tipo e básico" data-h="O que você quer divulgar?" data-sub="Escolha o tipo e preencha o básico. Campos com * são obrigatórios.">
+          <legend class="so-leitor">Tipo e informações básicas</legend>
+
+          <div id="cad-opcoes" class="cad-opcoes">
+            <button type="button" class="cad-opcao" data-escolha="evento" aria-pressed="true">
+              <strong>Evento</strong>
+              <span>Show, festa, teatro ou festival. Tem data e ingressos.</span>
+            </button>
+            <button type="button" class="cad-opcao" data-escolha="lugar" aria-pressed="false">
+              <strong>Lugar</strong>
+              <span>Bar, restaurante, café ou parque. Aberto todo dia.</span>
+            </button>
+          </div>
+
+          <label class="cad-campo">
+            <span><span data-modo="evento">Nome do evento *</span><span data-modo="lugar" hidden>Nome do lugar *</span></span>
+            <input type="text" name="nome" required minlength="3" maxlength="200" placeholder="Ex.: Noite de Samba">
+          </label>
+
+          <fieldset class="modo" data-modo="evento">
+            <div class="cad-campo">
+              <span>Categoria</span>
+              <input type="hidden" name="categoria" id="categoria">
+              <div class="cad-chips" id="chips-categoria"></div>
+            </div>
+            <label class="cad-campo">
+              <span>Assunto</span>
+              <input type="text" name="assunto" maxlength="200" placeholder="Ex.: Música">
+            </label>
+          </fieldset>
+
+          <fieldset class="modo" data-modo="lugar" disabled hidden>
+            <div class="cad-campo">
+              <span>Tipo *</span>
+              <input type="hidden" name="tipo" id="tipo">
+              <div class="cad-chips" id="chips-tipo"></div>
+            </div>
+            <label class="cad-campo">
+              <span>Faixa de preço</span>
+              <select name="faixaPreco">
+                <option value="">Não informar</option>
+                <option value="1">$ · Barato</option>
+                <option value="2">$$ · Moderado</option>
+                <option value="3">$$$ · Caro</option>
+              </select>
+            </label>
+          </fieldset>
+
+          <label class="cad-campo">
+            <span>Descrição</span>
+            <textarea name="descricao" rows="4" placeholder="Conte o clima, as atrações e o que o lugar ou o evento tem de especial."></textarea>
+          </label>
+
+          <div class="cad-campo">
+            <span>Imagem de capa</span>
+            <input type="hidden" name="imagem" id="imagem">
+            <input type="file" id="arquivo-imagem" accept="image/jpeg,image/png,image/webp" hidden>
+            <div class="cad-upload" id="upload-area">
+              <p class="cad-upload-titulo">Arraste a imagem aqui</p>
+              <button id="upload-escolher" class="cad-btn-sec" type="button">Escolher imagem</button>
+              <button id="upload-remover" class="cad-remover" type="button" hidden>Remover imagem</button>
+              <p id="upload-msg" class="cad-dica">JPG, PNG ou WebP, até 5 MB.</p>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- EVENTO: data -->
+        <fieldset class="etapa modo" data-modo="evento" data-titulo="Data" data-h="Quando vai ser?" data-sub="Dia e horário de início e, se quiser, de término." disabled hidden>
+          <legend class="so-leitor">Data e horário</legend>
+          <div class="cad-linha">
+            <label class="cad-campo">
+              <span>Início *</span>
+              <input type="datetime-local" name="dataInicio" id="dataInicio" required>
+            </label>
+            <label class="cad-campo">
+              <span>Término</span>
+              <input type="datetime-local" name="dataFim" id="dataFim">
+            </label>
+          </div>
+        </fieldset>
+
+        <!-- EVENTO: local -->
+        <fieldset class="etapa modo" data-modo="evento" data-titulo="Local" data-h="Onde vai ser?" data-sub="Escolha um lugar do Rolês e o endereço é preenchido sozinho." disabled hidden>
+          <legend class="so-leitor">Local do evento</legend>
+          <label class="cad-campo">
+            <span>Lugar cadastrado</span>
+            <select name="lugarId" id="lugar-id">
+              <option value="">Nenhum (informar o local abaixo)</option>
+            </select>
+            <small class="cad-dica" id="lugar-dica">O evento aparece na página do lugar escolhido.</small>
+          </label>
+          <label class="cad-campo">
+            <span>Nome do local</span>
+            <input type="text" name="localNome" maxlength="200" placeholder="Ex.: Teatro Municipal">
+          </label>
+          <div class="cad-linha">
+            <label class="cad-campo">
+              <span>CEP</span>
+              <input type="text" name="cep" maxlength="9" placeholder="00000-000">
+            </label>
+            <label class="cad-campo">
+              <span>Rua</span>
+              <input type="text" name="rua" maxlength="200">
+            </label>
+          </div>
+          <div class="cad-linha cad-linha-uf">
+            <label class="cad-campo">
+              <span>Cidade</span>
+              <input type="text" name="cidade" maxlength="100">
+            </label>
+            <label class="cad-campo">
+              <span>UF</span>
+              <input type="text" name="estado" maxlength="2" pattern="[A-Za-z]{2}" placeholder="GO">
+            </label>
+          </div>
+        </fieldset>
+
+        <!-- EVENTO: ingressos -->
+        <fieldset class="etapa modo" data-modo="evento" data-titulo="Ingressos" data-h="Ingressos" data-sub="Crie um ou mais tipos de ingresso." disabled hidden>
+          <legend class="so-leitor">Ingressos</legend>
+          <div id="lista-ingressos"></div>
+          <button id="adicionar-ingresso" class="cad-btn-sec" type="button">+ Adicionar ingresso</button>
+        </fieldset>
+
+        <!-- EVENTO: organização -->
+        <fieldset class="etapa modo" data-modo="evento" data-titulo="Organização" data-h="Quem organiza?" data-sub="Opcional." disabled hidden>
+          <legend class="so-leitor">Organização</legend>
+          <label class="cad-campo">
+            <span>Nome do produtor</span>
+            <input type="text" name="nomeProdutor" maxlength="200">
+          </label>
+        </fieldset>
+
+        <!-- LUGAR: endereço -->
+        <fieldset class="etapa modo" data-modo="lugar" data-titulo="Endereço" data-h="Onde fica?" data-sub="Usado no botão Como chegar da página do lugar." disabled hidden>
+          <legend class="so-leitor">Endereço</legend>
+          <div class="cad-linha">
+            <label class="cad-campo">
+              <span>CEP</span>
+              <input type="text" name="cep" maxlength="9" placeholder="00000-000">
+            </label>
+            <label class="cad-campo">
+              <span>Rua e número</span>
+              <input type="text" name="rua" maxlength="200">
+            </label>
+          </div>
+          <label class="cad-campo">
+            <span>Bairro</span>
+            <input type="text" name="bairro" maxlength="100">
+          </label>
+          <div class="cad-linha cad-linha-uf">
+            <label class="cad-campo">
+              <span>Cidade *</span>
+              <input type="text" name="cidade" required maxlength="100">
+            </label>
+            <label class="cad-campo">
+              <span>UF</span>
+              <input type="text" name="estado" maxlength="2" pattern="[A-Za-z]{2}" placeholder="GO">
+            </label>
+          </div>
+        </fieldset>
+
+        <!-- LUGAR: contato -->
+        <fieldset class="etapa modo" data-modo="lugar" data-titulo="Contato" data-h="Como falar com o lugar?" data-sub="Opcional, mas ajuda quem quer reservar ou tirar dúvidas." disabled hidden>
+          <legend class="so-leitor">Contato</legend>
+          <div class="cad-linha">
+            <label class="cad-campo">
+              <span>Telefone</span>
+              <input type="tel" name="telefone" maxlength="20" placeholder="(62) 99999-9999">
+            </label>
+            <label class="cad-campo">
+              <span>Instagram</span>
+              <input type="text" name="instagram" maxlength="100" placeholder="@seulugar">
+            </label>
+          </div>
+        </fieldset>
+
+        <!-- LUGAR: horários -->
+        <fieldset class="etapa modo" data-modo="lugar" data-titulo="Horários" data-h="Horários de funcionamento" data-sub="Deixe em branco os dias que você não quer informar." disabled hidden>
+          <legend class="so-leitor">Horários de funcionamento</legend>
+          <div class="horario-cab" aria-hidden="true">
+            <span>Dia</span><span>Abre</span><span>Fecha</span><span></span>
+          </div>
+          <div id="horarios" class="horarios"></div>
+          <button id="copiar-horario" class="cad-btn-sec" type="button">Copiar horário de segunda para todos os dias</button>
+          <p class="cad-dica">Se fecha depois da meia-noite, é só colocar o horário de fechamento (ex.: abre 22:00, fecha 05:00).</p>
+        </fieldset>
+
+        <div id="erros" class="cad-erros" role="alert" hidden></div>
+        <div id="aviso" class="aviso" role="alert" hidden></div>
+
+        <div class="cad-nav">
+          <a id="cad-cancelar" class="cad-cancelar" href="index.html">Cancelar</a>
+          <button id="cad-voltar" class="cad-voltar" type="button" hidden>Voltar</button>
+          <button id="cad-continuar" class="botao" type="button">Continuar</button>
+          <button id="botao-salvar" class="botao" type="submit" hidden>Publicar evento</button>
+        </div>
+      </form>
+    </div>
+
+    <aside class="cad-previa" aria-label="Prévia do card">
+      <p class="cad-previa-rotulo">Prévia ao vivo</p>
+      <div class="pv-card">
+        <div class="pv-capa" id="pv-capa"></div>
+        <div class="pv-corpo">
+          <span class="pv-tipo" id="pv-tipo"></span>
+          <h3 id="pv-nome"></h3>
+          <p class="pv-linha" id="pv-l1"></p>
+          <p class="pv-linha" id="pv-l2"></p>
+          <p class="pv-linha pv-destaque" id="pv-l3"></p>
+        </div>
+      </div>
+      <p class="cad-previa-nota">Os traços cinza viram texto conforme você digita.</p>
+    </aside>
+  </main>
+
+  <!-- Molde de uma linha de ingresso: o JS copia este bloco a cada "Adicionar ingresso". -->
+  <template id="modelo-ingresso">
+    <div class="ingresso-linha">
+      <label class="campo-form">
+        <span>Título *</span>
+        <input class="ing-titulo" type="text" required minlength="2" maxlength="100" placeholder="Ex.: Pista">
+      </label>
+      <label class="campo-form">
+        <span>Tipo</span>
+        <select class="ing-tipo">
+          <option value="pago">Pago</option>
+          <option value="gratuito">Gratuito</option>
+        </select>
+      </label>
+      <label class="campo-form">
+        <span>Valor (R$)</span>
+        <input class="ing-valor" type="number" min="0" step="0.01" placeholder="0,00">
+      </label>
+      <label class="campo-form">
+        <span>Quantidade *</span>
+        <input class="ing-quantidade" type="number" min="1" step="1" required placeholder="100">
+      </label>
+      <button class="remover" type="button" aria-label="Remover ingresso">×</button>
+    </div>
+  </template>
+
+  <script type="module" src="js/menu.js"></script>
+  <script type="module" src="js/cadastrar.js"></script>
+</body>
+</html>

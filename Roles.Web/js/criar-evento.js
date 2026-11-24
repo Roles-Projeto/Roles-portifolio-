@@ -6,9 +6,13 @@ import {
   listarIngressos,
   atualizarIngresso,
   apagarIngresso,
+  listarLugares,
 } from "./api.js";
 import { estaLogada, lerUsuario } from "./auth.js";
-import { escapar, mensagemDoErro } from "./util.js";
+import { escapar, mensagemDoErro, formatarDataCompleta } from "./util.js";
+import { enviarImagem, validarImagem } from "./upload.js";
+
+const MSG_IMAGEM = "JPG, PNG ou WebP, até 5 MB.";
 
 // criar-evento.html        -> criar
 // criar-evento.html?id=3   -> editar o evento 3
@@ -22,14 +26,34 @@ if (!estaLogada()) {
 }
 
 const form = document.getElementById("form-evento");
-const elTitulo = document.querySelector("h1.titulo");
+const elTitulo = document.getElementById("cad-titulo");
+const elSub = document.getElementById("cad-sub");
+const elSeletor = document.getElementById("cad-tipo");
 const elErros = document.getElementById("erros");
 const elAviso = document.getElementById("aviso");
 const botao = document.getElementById("botao-salvar");
 const elIngressos = document.getElementById("lista-ingressos");
-const blocoIngressos = elIngressos.closest("fieldset");
 const modelo = document.getElementById("modelo-ingresso");
 const botaoAdicionar = document.getElementById("adicionar-ingresso");
+
+const elLugar = document.getElementById("lugar-id");
+const elLugarDica = document.getElementById("lugar-dica");
+
+const campoImagem = document.getElementById("imagem");
+const arquivoImagem = document.getElementById("arquivo-imagem");
+const areaUpload = document.getElementById("upload-area");
+const botaoEscolher = document.getElementById("upload-escolher");
+const botaoRemover = document.getElementById("upload-remover");
+const msgImagem = document.getElementById("upload-msg");
+
+const pvCapa = document.getElementById("pv-capa");
+const pvTipo = document.getElementById("pv-tipo");
+const pvNome = document.getElementById("pv-nome");
+const pvData = document.getElementById("pv-data");
+const pvLocal = document.getElementById("pv-local");
+const pvPreco = document.getElementById("pv-preco");
+
+let lugares = [];
 
 // Texto em branco vira null (a API entende como "não informado").
 function textoOuNulo(valor) {
@@ -49,6 +73,7 @@ function dataParaCampo(iso) {
 
 function lerEvento() {
   const campos = new FormData(form);
+  const lugar = campos.get("lugarId");
 
   return {
     nome: String(campos.get("nome")).trim(),
@@ -64,7 +89,128 @@ function lerEvento() {
     cidade: textoOuNulo(campos.get("cidade")),
     estado: textoOuNulo(campos.get("estado")),
     nomeProdutor: textoOuNulo(campos.get("nomeProdutor")),
+    // Importante: a API troca o lugar a cada PUT, então ele sempre vai junto.
+    lugarId: lugar ? Number(lugar) : null,
   };
+}
+
+// Lugares cadastrados: alimenta o select do local.
+async function carregarLugares() {
+  try {
+    lugares = await listarLugares();
+  } catch (erro) {
+    console.error(erro);
+    elLugarDica.textContent = "Não foi possível carregar os lugares. Você ainda pode informar o local abaixo.";
+    return;
+  }
+
+  const opcoes = lugares
+    .map((l) => {
+      const detalhe = [l.cidade, l.estado].filter(Boolean).join("/");
+      const texto = detalhe ? `${l.nome} · ${detalhe}` : l.nome;
+      return `<option value="${Number(l.id)}">${escapar(texto)}</option>`;
+    })
+    .join("");
+
+  elLugar.insertAdjacentHTML("beforeend", opcoes);
+}
+
+// Escolheu um lugar: copia o endereço dele para os campos do local.
+function aplicarLugar() {
+  const lugar = lugares.find((l) => String(l.id) === elLugar.value);
+  if (!lugar) return;
+
+  const valores = {
+    localNome: lugar.nome,
+    cep: lugar.cep,
+    rua: lugar.rua,
+    cidade: lugar.cidade,
+    estado: lugar.estado,
+  };
+
+  for (const [nome, valor] of Object.entries(valores)) {
+    const campo = form.elements[nome];
+    if (campo) campo.value = valor ?? "";
+  }
+}
+
+// Prévia ao vivo: monta o card com o que já foi digitado.
+function atualizarPrevia() {
+  const e = lerEvento();
+
+  pvCapa.innerHTML = e.imagem
+    ? `<img src="${escapar(e.imagem)}" alt="">`
+    : escapar((e.nome.charAt(0) || "?").toUpperCase());
+
+  pvTipo.textContent = e.categoria || "Categoria";
+
+  pvNome.textContent = e.nome || "Nome do evento";
+  pvNome.classList.toggle("vazio", !e.nome);
+
+  let quando = "";
+  try {
+    if (e.dataInicio) quando = formatarDataCompleta(e.dataInicio);
+  } catch {
+    // data incompleta: a prévia só não mostra a data
+  }
+  pvData.textContent = quando || "Data e horário";
+  pvData.classList.toggle("vazio", !quando);
+
+  const local = [e.localNome, e.cidade].filter(Boolean).join(" · ");
+  pvLocal.textContent = local || "Local · Cidade";
+  pvLocal.classList.toggle("vazio", !local);
+
+  // Preço: menor valor entre os ingressos pagos; só gratuitos vira "Gratuito".
+  const ingressos = lerIngressos();
+  const pagos = ingressos.filter((i) => i.tipo === "pago" && i.valor > 0).map((i) => i.valor);
+  if (pagos.length > 0) {
+    const menor = Math.min(...pagos).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    pvPreco.textContent = `A partir de ${menor}`;
+  } else if (ingressos.length > 0 && ingressos.every((i) => i.tipo === "gratuito")) {
+    pvPreco.textContent = "Gratuito";
+  } else {
+    pvPreco.textContent = "";
+  }
+}
+
+// Atualiza o botão e o campo escondido da imagem.
+function definirImagem(url) {
+  campoImagem.value = url ?? "";
+  botaoRemover.hidden = !url;
+  botaoEscolher.textContent = url ? "Trocar imagem" : "Escolher imagem";
+  atualizarPrevia();
+}
+
+function avisoImagem(texto, ehErro = false) {
+  msgImagem.textContent = texto;
+  msgImagem.classList.toggle("erro", ehErro);
+}
+
+async function subirArquivo(arquivo) {
+  const problema = validarImagem(arquivo);
+  if (problema) {
+    avisoImagem(problema, true);
+    return;
+  }
+
+  // Bloqueia o envio do formulário enquanto a imagem sobe.
+  botao.disabled = true;
+  botaoEscolher.disabled = true;
+  areaUpload.classList.add("carregando");
+  avisoImagem("Enviando imagem...");
+
+  try {
+    definirImagem(await enviarImagem(arquivo));
+    avisoImagem(MSG_IMAGEM);
+  } catch (erro) {
+    console.error(erro);
+    avisoImagem(erro.message, true);
+  } finally {
+    botao.disabled = false;
+    botaoEscolher.disabled = false;
+    areaUpload.classList.remove("carregando");
+    arquivoImagem.value = "";
+  }
 }
 
 // Preenche o formulário com os dados do evento (modo edição).
@@ -73,7 +219,6 @@ function preencherFormulario(e) {
     nome: e.nome,
     assunto: e.assunto,
     categoria: e.categoria,
-    imagem: e.imagem,
     dataInicio: dataParaCampo(e.dataInicio),
     dataFim: dataParaCampo(e.dataFim),
     descricao: e.descricao,
@@ -83,12 +228,15 @@ function preencherFormulario(e) {
     cidade: e.cidade,
     estado: e.estado,
     nomeProdutor: e.nomeProdutor,
+    lugarId: e.lugarId,
   };
 
   for (const [nome, valor] of Object.entries(valores)) {
     const campo = form.elements[nome];
     if (campo) campo.value = valor ?? "";
   }
+
+  definirImagem(e.imagem);
 }
 
 // Lê os campos de UMA linha de ingresso.
@@ -143,6 +291,7 @@ function adicionarLinhaIngresso(ingresso = null) {
   if (editando) prepararLinhaEdicao(linha);
 
   elIngressos.appendChild(linha);
+  atualizarPrevia();
   return linha;
 }
 
@@ -231,6 +380,7 @@ async function removerLinha(linha) {
 
   if (!editando || !idIngresso) {
     linha.remove();
+    atualizarPrevia();
     return;
   }
 
@@ -240,6 +390,7 @@ async function removerLinha(linha) {
   try {
     await apagarIngresso(eventoId, Number(idIngresso));
     linha.remove();
+    atualizarPrevia();
   } catch (erro) {
     console.error(erro);
     mostrarMsgLinha(linha, mensagemDoErro(erro)[0]);
@@ -249,6 +400,8 @@ async function removerLinha(linha) {
 // Modo edição: busca o evento, confere se a pessoa é a dona e preenche o formulário.
 async function iniciarEdicao() {
   elTitulo.textContent = "Editar evento";
+  elSub.textContent = "Mude o que quiser e veja a prévia ao lado.";
+  elSeletor.hidden = true;
   botao.textContent = "Salvar alterações";
   form.hidden = true;
 
@@ -258,7 +411,8 @@ async function iniciarEdicao() {
   }
 
   try {
-    const evento = await buscarEvento(eventoId);
+    // Os lugares precisam estar no select antes de marcar o lugar do evento.
+    const [evento] = await Promise.all([buscarEvento(eventoId), carregarLugares()]);
 
     if (evento.usuarioId !== lerUsuario()?.id) {
       elTitulo.textContent = "Você não pode editar este evento.";
@@ -289,7 +443,15 @@ async function iniciarEdicao() {
   }
 }
 
-// Eventos da seção de ingressos
+// Eventos da tela
+form.addEventListener("input", atualizarPrevia);
+form.addEventListener("change", atualizarPrevia);
+
+elLugar.addEventListener("change", () => {
+  aplicarLugar();
+  atualizarPrevia();
+});
+
 botaoAdicionar.addEventListener("click", () => adicionarLinhaIngresso());
 
 elIngressos.addEventListener("click", (evento) => {
@@ -306,6 +468,7 @@ elIngressos.addEventListener("click", (evento) => {
 elIngressos.addEventListener("change", (evento) => {
   if (evento.target.matches(".ing-tipo")) {
     atualizarTipo(evento.target.closest(".ingresso-linha"));
+    atualizarPrevia();
   }
 });
 
@@ -313,6 +476,32 @@ elIngressos.addEventListener("change", (evento) => {
 elIngressos.addEventListener("input", (evento) => {
   const linha = evento.target.closest(".ingresso-linha");
   if (linha) mostrarMsgLinha(linha, "");
+});
+
+botaoEscolher.addEventListener("click", () => arquivoImagem.click());
+
+botaoRemover.addEventListener("click", () => {
+  definirImagem("");
+  avisoImagem(MSG_IMAGEM);
+});
+
+arquivoImagem.addEventListener("change", () => {
+  if (arquivoImagem.files[0]) subirArquivo(arquivoImagem.files[0]);
+});
+
+// Arrastar e soltar a imagem na área pontilhada.
+areaUpload.addEventListener("dragover", (evento) => {
+  evento.preventDefault();
+  areaUpload.classList.add("arrastando");
+});
+
+areaUpload.addEventListener("dragleave", () => areaUpload.classList.remove("arrastando"));
+
+areaUpload.addEventListener("drop", (evento) => {
+  evento.preventDefault();
+  areaUpload.classList.remove("arrastando");
+  const arquivo = evento.dataTransfer.files[0];
+  if (arquivo) subirArquivo(arquivo);
 });
 
 form.addEventListener("submit", async (evento) => {
@@ -392,11 +581,14 @@ form.addEventListener("submit", async (evento) => {
   mostrarAvisoParcial(criado.id, falhas);
 });
 
+definirImagem("");
+
 // Só prepara a tela se a pessoa está logada (senão o redirecionamento acima já foi pedido).
 if (estaLogada()) {
   if (editando) {
     iniciarEdicao();
   } else {
+    carregarLugares();
     // Começa com uma linha de ingresso pronta (dá para remover).
     adicionarLinhaIngresso();
   }

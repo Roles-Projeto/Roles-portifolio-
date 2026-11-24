@@ -1,6 +1,6 @@
 // Troque pelos seus dados do Cloudinary.
-const CLOUD_NAME = "SEU_CLOUD_NAME";
-const UPLOAD_PRESET = "SEU_PRESET";
+const CLOUD_NAME = "ihvjzebo";
+const UPLOAD_PRESET = "roles_upload";
 
 const TAMANHO_MAXIMO = 5 * 1024 * 1024; // 5 MB
 const TIPOS_ACEITOS = ["image/jpeg", "image/png", "image/webp"];

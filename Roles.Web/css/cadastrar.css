@@ -1,0 +1,671 @@
+/* Cadastro em etapas (evento e lugar) */
+.cad {
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr) 300px;
+  align-items: start;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 40px 32px 80px;
+  gap: 0 40px;
+}
+
+.cad [hidden] {
+  display: none !important;
+}
+
+.cad fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* Lista de etapas */
+.cad-rail {
+  position: sticky;
+  top: 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.rail-resumo {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.rail-barra {
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+}
+
+.rail-barra div {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+  transition: width 0.25s;
+}
+
+.rail-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rail-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 7px 0;
+  font: inherit;
+  font-size: 0.92rem;
+  color: var(--ink);
+  text-align: left;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.rail-item:disabled {
+  color: var(--muted);
+  cursor: default;
+}
+
+.rail-item.atual {
+  font-weight: 700;
+}
+
+.rail-num {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--muted);
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+}
+
+.rail-item.atual .rail-num {
+  color: #fff;
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.rail-item.feita .rail-num {
+  color: #fff;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/* Cabeçalho da etapa */
+.cad-cab h1 {
+  margin: 0 0 8px;
+  font-size: clamp(1.7rem, 3.4vw, 2.2rem);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.cad-cab p {
+  min-height: 1.4em;
+  margin: 0 0 24px;
+  max-width: 56ch;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+/* Cartões Evento | Lugar */
+.cad-opcoes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.cad-opcao {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 18px;
+  font: inherit;
+  color: var(--ink);
+  text-align: left;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.cad-opcao strong {
+  font-size: 1.05rem;
+}
+
+.cad-opcao span {
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.cad-opcao:hover {
+  border-color: #cfcbd9;
+}
+
+.cad-opcao[aria-pressed="true"] {
+  background: var(--surface);
+  border-color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+
+/* Campos */
+.cad-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  margin-bottom: 16px;
+}
+
+.cad-campo > span {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.cad-linha {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 16px;
+}
+
+.cad-linha-uf {
+  grid-template-columns: 1fr 110px;
+}
+
+.cad-campo input[type="text"],
+.cad-campo input[type="tel"],
+.cad-campo input[type="datetime-local"],
+.cad-campo select,
+.cad-campo textarea {
+  width: 100%;
+  padding: 12px 14px;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.cad-campo textarea {
+  resize: vertical;
+}
+
+.cad-campo :is(input, select, textarea):focus,
+.horario-linha input[type="time"]:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.15);
+}
+
+.cad ::placeholder {
+  color: #8d8a9b;
+}
+
+.cad-dica {
+  margin: 10px 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.cad-campo .cad-dica {
+  margin: 4px 0 0;
+}
+
+.cad-dica.erro {
+  color: #b42318;
+}
+
+/* Botões de categoria / tipo */
+.cad-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cad-chip {
+  padding: 8px 16px;
+  font: inherit;
+  font-size: 0.88rem;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.cad-chip:hover {
+  border-color: var(--ink);
+}
+
+.cad-chip[aria-pressed="true"] {
+  color: #fff;
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.cad-btn-sec {
+  padding: 10px 18px;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.cad-btn-sec:hover:not(:disabled) {
+  background: var(--surface);
+}
+
+.cad-btn-sec:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+#copiar-horario,
+#adicionar-ingresso {
+  margin-top: 16px;
+}
+
+#lista-ingressos .ingresso-linha {
+  margin-bottom: 14px;
+}
+
+/* Área de imagem */
+.cad-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 28px 16px;
+  text-align: center;
+  background: var(--surface);
+  border: 2px dashed var(--border);
+  border-radius: 16px;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.cad-upload.arrastando {
+  background: #f1ebfd;
+  border-color: var(--accent);
+}
+
+.cad-upload.carregando {
+  opacity: 0.6;
+}
+
+.cad-upload-titulo {
+  margin: 0;
+  font-weight: 600;
+}
+
+.cad-upload .cad-dica {
+  margin: 0;
+}
+
+.cad-remover {
+  padding: 0;
+  font: inherit;
+  font-size: 0.85rem;
+  color: #b42318;
+  background: none;
+  border: 0;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Erros */
+.cad-erros {
+  padding: 14px 18px;
+  margin: 8px 0 16px;
+  font-size: 0.9rem;
+  color: #b42318;
+  background: #fef3f2;
+  border: 1px solid #f1c4c0;
+  border-radius: 12px;
+}
+
+.cad-erros ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+/* Botões de navegação entre etapas (ficam no fim do formulário, não flutuam) */
+.cad-nav {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 20px;
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.cad-cancelar,
+.cad-voltar {
+  padding: 0;
+  margin-right: auto;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.cad-cancelar:hover,
+.cad-voltar:hover {
+  color: var(--ink);
+}
+
+/* Prévia ao vivo */
+.cad-previa {
+  position: sticky;
+  top: 96px;
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+}
+
+.cad-previa-rotulo {
+  margin: 0 0 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.cad-previa-nota {
+  margin: 12px 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.pv-card {
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+.pv-capa {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 150px;
+  overflow: hidden;
+  font-size: 0.85rem;
+  color: var(--muted);
+  background: #ebe8f5;
+}
+
+.pv-capa img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pv-corpo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 14px 16px 16px;
+}
+
+.pv-corpo > * {
+  max-width: 100%;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.pv-tipo {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.pv-corpo h3 {
+  font-size: 1.1rem;
+}
+
+.pv-linha {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.pv-destaque {
+  font-weight: 600;
+  color: #0f7a3d;
+}
+
+.pv-destaque.fechado {
+  color: #b42318;
+}
+
+/* Campo ainda vazio: vira um traço cinza */
+.pv-corpo .vazio {
+  color: transparent;
+  background: #e9e7f0;
+  border-radius: 6px;
+  user-select: none;
+}
+
+@media (max-width: 1000px) {
+  .cad {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 24px 16px 64px;
+  }
+
+  .cad-previa {
+    display: none;
+  }
+
+  .cad-rail {
+    position: static;
+    margin-bottom: 24px;
+  }
+
+  .rail-lista {
+    flex-direction: row;
+    gap: 14px;
+    overflow-x: auto;
+  }
+
+  .rail-item {
+    width: auto;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 600px) {
+  .cad-linha,
+  .cad-opcoes {
+    grid-template-columns: 1fr;
+  }
+
+  .cad-linha-uf {
+    grid-template-columns: 1fr 90px;
+  }
+
+  .cad-nav .botao {
+    flex: 1;
+  }
+}
+
+/* Texto só para leitores de tela */
+.cad .so-leitor {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- Cores por tipo ---------- */
+/* Padrão (evento): vale mesmo antes do JavaScript marcar o tipo. */
+:root {
+  --cad-cor: #6d28d9;
+  --cad-cor-escura: #5b21b6;
+  --cad-cor2: #db2777;
+  --cad-tint: #f3ecff;
+  --cad-borda: #d9c8fb;
+}
+
+body[data-cad="evento"] {
+  --cad-cor: #6d28d9;
+  --cad-cor-escura: #5b21b6;
+  --cad-cor2: #db2777;
+  --cad-tint: #f3ecff;
+  --cad-borda: #d9c8fb;
+}
+
+body[data-cad="lugar"] {
+  --cad-cor: #0e7490;
+  --cad-cor-escura: #155e75;
+  --cad-cor2: #10b981;
+  --cad-tint: #e6f6f9;
+  --cad-borda: #b3e1ea;
+}
+
+body:has(.cad) {
+  background: linear-gradient(180deg, var(--cad-tint) 0, #fff 460px) no-repeat;
+}
+
+/* Etapas */
+.rail-barra div {
+  background: linear-gradient(90deg, var(--cad-cor), var(--cad-cor2));
+}
+
+.rail-item.atual .rail-num {
+  background: var(--cad-cor);
+  border-color: var(--cad-cor);
+}
+
+.rail-item.atual {
+  color: var(--cad-cor-escura);
+}
+
+.rail-item.feita .rail-num {
+  background: #15803d;
+  border-color: #15803d;
+}
+
+/* Cartões Evento | Lugar */
+.cad-opcao {
+  border-color: var(--cad-borda);
+}
+
+.cad-opcao:hover {
+  border-color: var(--cad-cor);
+}
+
+.cad-opcao[aria-pressed="true"] {
+  background: #fff;
+  border-color: var(--cad-cor);
+  box-shadow: 0 0 0 1px var(--cad-cor), 0 8px 22px -12px var(--cad-cor);
+}
+
+.cad-opcao[aria-pressed="true"] strong {
+  color: var(--cad-cor-escura);
+}
+
+/* Botões e destaques */
+.cad .botao {
+  background: var(--cad-cor);
+}
+
+.cad .botao:hover {
+  background: var(--cad-cor-escura);
+}
+
+.cad-chip {
+  border-color: var(--cad-borda);
+}
+
+.cad-chip:hover {
+  color: var(--cad-cor-escura);
+  background: var(--cad-tint);
+  border-color: var(--cad-cor);
+}
+
+.cad-chip[aria-pressed="true"] {
+  color: #fff;
+  background: var(--cad-cor);
+  border-color: var(--cad-cor);
+}
+
+.cad-btn-sec {
+  color: var(--cad-cor-escura);
+  border-color: var(--cad-cor);
+}
+
+.cad-btn-sec:hover:not(:disabled) {
+  background: var(--cad-tint);
+}
+
+.cad-campo :is(input, select, textarea):focus,
+.horario-linha input[type="time"]:focus {
+  border-color: var(--cad-cor);
+  box-shadow: 0 0 0 3px var(--cad-tint);
+}
+
+.cad-upload {
+  background: var(--cad-tint);
+  border-color: var(--cad-borda);
+}
+
+.cad-upload.arrastando {
+  background: #fff;
+  border-color: var(--cad-cor);
+}
+
+/* Prévia */
+.cad-previa {
+  background: #fff;
+  border-color: var(--cad-borda);
+  box-shadow: 0 18px 40px -26px var(--cad-cor);
+}
+
+.pv-capa {
+  color: #fff;
+  font-weight: 600;
+  background: linear-gradient(135deg, var(--cad-cor), var(--cad-cor2));
+}
+
+.pv-tipo {
+  color: var(--cad-cor);
+}
+
+.pv-corpo .vazio {
+  background: var(--cad-tint);
+}
